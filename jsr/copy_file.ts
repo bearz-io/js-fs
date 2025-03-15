@@ -1,7 +1,7 @@
 import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let cp : typeof import("node:fs").copyFileSync | undefined;
-let cpAsync : typeof import("node:fs/promises").copyFile | undefined;
+let fn : typeof import("node:fs").copyFileSync | undefined;
+let fnAsync : typeof import("node:fs/promises").copyFile | undefined;
 
 
 /**
@@ -28,21 +28,18 @@ export function copyFile(
     from: string | URL,
     to: string | URL,
 ): Promise<void> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.copyFile(from, to);
     }
 
-    if (cpAsync) {
-        return cpAsync(from, to);
+    if (!fnAsync) {
+        fnAsync = loadFsAsync()?.copyFile;
+        if (!fnAsync) {
+            throw new Error("No suitable file system module found.");
+        }
     }
 
-    const fs = loadFsAsync();
-    if (fs) {
-        cpAsync = fs.copyFile;
-        return cpAsync(from, to);
-    }
-
-    throw new Error("No suitable file system module found.");
+    return fnAsync(from, to);
 };
 
 /**
@@ -72,15 +69,12 @@ export function copyFileSync(
         return globals.Deno.copyFileSync(from, to);
     }
 
-    if (cp) {
-        return cp(from, to);
+    if (!fn) {
+        fn = loadFs()?.copyFileSync;
+        if (!fn) {
+            throw new Error("No suitable file system module found.");
+        }
     }
 
-    const fs = loadFs();
-    if (fs) {
-        cp = fs.copyFileSync;
-        return cp(from, to);
-    }
-
-    throw new Error("No suitable file system module found.");
+    return fn(from, to);
 };

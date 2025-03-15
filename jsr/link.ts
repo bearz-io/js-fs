@@ -1,5 +1,5 @@
 import { toPathString } from "./utils.ts";
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let lk : typeof import("node:fs").linkSync | undefined;
 let lkAsync : typeof import("node:fs/promises").link | undefined;
@@ -25,7 +25,7 @@ let lkAsync : typeof import("node:fs/promises").link | undefined;
  * ```
  */
 export function link(oldPath: string | URL, newPath: string | URL): Promise<void> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.link(toPathString(oldPath), toPathString(newPath));
     }
     
@@ -62,7 +62,7 @@ export function link(oldPath: string | URL, newPath: string | URL): Promise<void
  * ```
  */
 export function linkSync(oldPath: string | URL, newPath: string | URL): void {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.linkSync(toPathString(oldPath), toPathString(newPath));
     }
     if (lk) {

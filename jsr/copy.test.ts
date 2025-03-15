@@ -6,22 +6,17 @@ import { existsSync } from "./exists.ts";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { ensureFile, ensureFileSync } from "./ensure_file.ts";
 import { ensureSymlink, ensureSymlinkSync } from "./ensure_symlink.ts";
-import {
-    lstat,
-    lstatSync,
-    makeTempDir,
-    makeTempDirSync,
-    readFileSync,
-    readTextFile,
-    remove,
-    removeSync,
-    stat,
-    statSync,
-    writeFileSync,
-    writeTextFile,
-} from "./posix.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { stat, statSync } from "./stat.ts";
+import { remove, removeSync } from "./remove.ts";
+import { writeTextFile } from "./write_text_file.ts";
+import { readTextFile } from "./read_text_file.ts";
+import { readFileSync } from "./read_file.ts";
+import { makeTempDir, makeTempDirSync } from "./make_temp_dir.ts";
+import { writeFileSync } from "./write_file.ts";
+import { test } from "@bearz/testing";
 
-const test = Deno.test;
+
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");
 
@@ -30,29 +25,23 @@ function testCopy(
     cb: (tempDir: string) => Promise<void>,
     ignore = false,
 ) {
-    test({
-        name,
-        async fn() {
-            const tempDir = await makeTempDir({
-                prefix: "deno_std_copy_async_test_",
-            });
-            await cb(tempDir);
-            await remove(tempDir, { recursive: true });
-        },
-        ignore,
+    test(name, {skip: ignore }, async () => {
+        const tempDir = await makeTempDir({
+            prefix: "deno_std_copy_async_test_",
+        });
+        await cb(tempDir);
+        await remove(tempDir, { recursive: true });
     });
 }
 
 function testCopySync(name: string, cb: (tempDir: string) => void) {
-    test({
-        name,
-        fn: () => {
+    test(name,
+        () => {
             const tempDir = makeTempDirSync({
                 prefix: "deno_std_copy_sync_test_",
             });
             cb(tempDir);
             removeSync(tempDir, { recursive: true });
-        },
     });
 }
 

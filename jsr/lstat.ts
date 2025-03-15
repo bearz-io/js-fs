@@ -1,6 +1,6 @@
 import { basename } from "@bearz/path";
 import type { FileInfo } from "./types.ts";
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let ls : typeof import("node:fs").lstatSync | undefined;
 let lsAsync : typeof import("node:fs/promises").lstat | undefined;
@@ -12,7 +12,7 @@ let lsAsync : typeof import("node:fs/promises").lstat | undefined;
  * @returns A promise that resolves with the file information.
  */
 export function lstat(path: string | URL): Promise<FileInfo> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.lstat(path).then((stat) => {
             const p = path instanceof URL ? path.toString() : path;
             return {
@@ -84,7 +84,7 @@ export function lstat(path: string | URL): Promise<FileInfo> {
  * @returns The file information.
  */
 export function lstatSync(path: string | URL): FileInfo {
-    if (DENO) {
+    if (globals.Deno) {
         const stat = globals.Deno.lstatSync(path);
         const p = path instanceof URL ? path.toString() : path;
         return {

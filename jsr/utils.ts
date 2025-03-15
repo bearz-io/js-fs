@@ -1,4 +1,4 @@
-import { basename, fromFileUrl, normalize, resolve, SEPARATOR } from "@std/path";
+import { basename, fromFileUrl, normalize, resolve, SEPARATOR } from "@bearz/path";
 import type { FileInfo, WalkEntry } from "./types.ts";
 
 export function toPathString(

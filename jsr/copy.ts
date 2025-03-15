@@ -1,24 +1,16 @@
-import { basename, join, resolve } from "@std/path";
+import { basename, join, resolve } from "@bearz/path";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
-import {
-    copyFile as cpf,
-    copyFileSync as cpfSync,
-    lstat,
-    lstatSync,
-    readDir,
-    readDirSync,
-    readLinkSync,
-    stat,
-    statSync,
-    symlink,
-    symlinkSync,
-    utime,
-} from "./posix.ts";
+import { copyFile, copyFileSync } from "./copy_file.ts";
+import { readLink, readLinkSync } from "./read_link.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { utime, utimeSync } from "./utime.ts";
+import { symlink, symlinkSync } from "./symlink.ts";
+import { stat, statSync } from "./stat.ts";
+import { readDir, readDirSync } from "./read_dir.ts";
 import { getFileInfoType, isSubdir, toPathString } from "./utils.ts";
-import { isNotFoundError, readLink, utimeSync } from "./posix.ts";
-import { AlreadyExistsError } from "./errors.ts";
+import { AlreadyExistsError, isNotFoundError } from "./errors.ts";
 import type { FileInfo } from "./types.ts";
-import { WINDOWS } from "@bearz/runtime-info/os";
+import { WIN } from "./globals.ts";
 
 /** Options for {@linkcode copy} and {@linkcode copySync}. */
 export interface CopyOptions {
@@ -99,13 +91,13 @@ function ensureValidCopySync(
 }
 
 /* copy file to dest */
-async function copyFile(
+async function cpf(
     src: string | URL,
     dest: string | URL,
     options: InternalCopyOptions,
 ) {
     await ensureValidCopy(src, dest, options);
-    await cpf(src, dest);
+    await copyFile(src, dest);
     if (options.preserveTimestamps) {
         const statInfo = await stat(src);
         if (statInfo.atime == null) {
@@ -120,13 +112,13 @@ async function copyFile(
     }
 }
 /* copy file to dest synchronously */
-function copyFileSync(
+function cpfSync(
     src: string | URL,
     dest: string | URL,
     options: InternalCopyOptions,
 ) {
     ensureValidCopySync(src, dest, options);
-    cpfSync(src, dest);
+    copyFileSync(src, dest);
     if (options.preserveTimestamps) {
         const statInfo = statSync(src);
         if (statInfo.atime == null) {
@@ -150,7 +142,7 @@ async function copySymLink(
     await ensureValidCopy(src, dest, options);
     const originSrcFilePath = await readLink(src);
     const type = getFileInfoType(await lstat(src));
-    if (WINDOWS) {
+    if (WIN) {
         await symlink(originSrcFilePath, dest, {
             type: type === "dir" ? "dir" : "file",
         });
@@ -180,7 +172,7 @@ function copySymlinkSync(
     ensureValidCopySync(src, dest, options);
     const originSrcFilePath = readLinkSync(src);
     const type = getFileInfoType(lstatSync(src));
-    if (WINDOWS) {
+    if (WIN) {
         symlinkSync(originSrcFilePath, dest, {
             type: type === "dir" ? "dir" : "file",
         });
@@ -243,7 +235,7 @@ async function copyDir(
         } else if (entry.isDirectory) {
             promises.push(copyDir(srcPath, destPath, options));
         } else if (entry.isFile) {
-            promises.push(copyFile(srcPath, destPath, options));
+            promises.push(cpf(srcPath, destPath, options));
         }
     }
 
@@ -289,7 +281,7 @@ function copyDirSync(
         } else if (entry.isDirectory) {
             copyDirSync(srcPath, destPath, options);
         } else if (entry.isFile) {
-            copyFileSync(srcPath, destPath, options);
+            cpfSync(srcPath, destPath, options);
         }
     }
 }
@@ -364,7 +356,7 @@ export async function copy(
     } else if (srcStat.isDirectory) {
         await copyDir(src, dest, options);
     } else if (srcStat.isFile) {
-        await copyFile(src, dest, options);
+        await cpfSync(src, dest, options);
     }
 }
 
@@ -438,6 +430,6 @@ export function copySync(
     } else if (srcStat.isDirectory) {
         copyDirSync(src, dest, options);
     } else if (srcStat.isFile) {
-        copyFileSync(src, dest, options);
+        cpfSync(src, dest, options);
     }
 }

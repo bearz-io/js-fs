@@ -1,11 +1,11 @@
-import { DENO, globals, } from "./globals.ts";
+import { globals } from "./globals.ts";
 
 /**
  * Gets the current working directory.
  * @returns The current working directory.
  */
 export function cwd(): string {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.cwd();
     }
 
