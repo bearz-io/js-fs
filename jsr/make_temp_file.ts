@@ -1,8 +1,8 @@
 import type { MakeTempOptions } from "./types.ts";
-import { DENO, WIN, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { WIN, globals, loadFs, loadFsAsync } from "./globals.ts";
 import { join, isAbsolute }  from "@bearz/path";
 import { exists, existsSync } from "./exists.ts";
-import { makeDir, makeDirSync } from "./make_dir.ts";
+import { NotFoundError } from "./errors.ts";
 
 
 let fn: typeof import('node:fs').writeFileSync | undefined = undefined;
@@ -16,11 +16,11 @@ function randomName(prefix?: string, suffix?: string): string {
         .join("");
 
     if (prefix && suffix) {
-        return `${prefix}-${name}${suffix}`;
+        return `${prefix}${name}${suffix}`;
     }
 
     if (prefix) {
-        return `${prefix}-${name}`;
+        return `${prefix}${name}`;
     }
 
     if (suffix) {
@@ -36,7 +36,7 @@ function randomName(prefix?: string, suffix?: string): string {
  * @returns A promise that resolves with the path to the created temporary file.
  */
 export async function makeTempFile(options?: MakeTempOptions): Promise<string> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.makeTempFile(options);
     }
 
@@ -62,7 +62,7 @@ export async function makeTempFile(options?: MakeTempOptions): Promise<string> {
     const r = randomName(options.prefix, options.suffix);
     const file = join(dir, r);
     if (!await exists(dir)) {
-        await makeDir(dir, { recursive: true });
+        throw new NotFoundError(`Directory not found: ${dir}`);
     }
 
     await fnAsync(file, new Uint8Array(0), { mode: 0o644 });
@@ -75,7 +75,7 @@ export async function makeTempFile(options?: MakeTempOptions): Promise<string> {
  * @returns The path to the created temporary file.
  */
 export function makeTempFileSync(options?: MakeTempOptions): string {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.makeTempFileSync(options);
     }
 
@@ -101,7 +101,7 @@ export function makeTempFileSync(options?: MakeTempOptions): string {
     const r = randomName(options.prefix, options.suffix);
     const file = join(dir, r);
     if (!existsSync(dir)) {
-        makeDirSync(dir, { recursive: true });
+        throw new NotFoundError(`Directory not found: ${dir}`);
     }
 
     fn(file, new Uint8Array(0), { mode: 0o644 });

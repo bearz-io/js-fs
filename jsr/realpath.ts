@@ -1,4 +1,4 @@
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import('node:fs').realpathSync | undefined = undefined;
 let fnAsync: typeof import('node:fs/promises').realpath | undefined = undefined;
@@ -9,14 +9,14 @@ let fnAsync: typeof import('node:fs/promises').realpath | undefined = undefined;
  * @returns A promise that resolves with the real path as a string.
  */
 export function realPath(path: string | URL): Promise<string> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.realPath(path);
     }
 
     if (!fnAsync) {
         fnAsync = loadFsAsync()?.realpath;
         if (!fnAsync) {
-            throw new Error("fs.promises.realpath is not available");
+            return Promise.reject(new Error("No suitable file system module found."));
         }
     }
 
@@ -29,7 +29,7 @@ export function realPath(path: string | URL): Promise<string> {
  * @returns The real path as a string.
  */
 export function realPathSync(path: string | URL): string {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.realPathSync(path);
     }
 

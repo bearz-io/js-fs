@@ -68,7 +68,6 @@ export function output(command: string, args: string[], options?: ExecOptions): 
             }
         });
     });
-
 }
 
 export function exec(command: string, args: string[], options?: ExecOptions): Promise<number> {

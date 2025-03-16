@@ -1,4 +1,4 @@
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import('node:fs').utimesSync | undefined;
 let fnAsync: typeof  import('node:fs/promises').utimes | undefined;
@@ -15,14 +15,14 @@ export function utime(
     atime: number | Date,
     mtime: number | Date,
 ): Promise<void> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.utime(path, atime, mtime);
     }
 
     if (!fnAsync) {
         fnAsync = loadFsAsync()?.utimes;
         if (!fnAsync) {
-            throw new Error("fs.promises.utimes is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 
@@ -40,14 +40,14 @@ export function utimeSync(
     atime: number | Date,
     mtime: number | Date,
 ): void {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.utimeSync(path, atime, mtime);
     }
 
     if (!fn) {
         fn = loadFs()?.utimesSync;
         if (!fn) {
-            throw new Error("fs.utimesSync is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 

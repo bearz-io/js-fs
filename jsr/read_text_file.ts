@@ -1,5 +1,5 @@
 import type { ReadOptions } from "./types.ts";
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import('node:fs').readFileSync | undefined = undefined;
 let fnAsync: typeof import('node:fs/promises').readFile | undefined = undefined;
@@ -11,30 +11,21 @@ let fnAsync: typeof import('node:fs/promises').readFile | undefined = undefined;
  * @returns A promise that resolves with the file contents as a string.
  */
 export function readTextFile(path: string | URL, options?: ReadOptions): Promise<string> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.readTextFile(path, options);
     }
 
     if (!fnAsync) {
         fnAsync = loadFsAsync()?.readFile;
         if (!fnAsync) {
-            throw new Error("fs.promises.readFile is not available");
+            return Promise.reject(new Error("No suitable file system module found."));
         }
     }
 
     if (options?.signal) {
         options.signal.throwIfAborted();
 
-        if (!globals.AbortController) {
-            throw new Error("AbortController is not available");
-        }
-
-        const c = new globals.AbortController();
-        options.signal.addEventListener("abort", () => {
-            c.abort();
-        });
-
-        return fnAsync(path, { encoding: 'utf-8', signal: c.signal });
+        return fnAsync(path, { encoding: 'utf-8', signal: options.signal });
     }
 
     return fnAsync(path, { encoding: 'utf-8' });
@@ -46,14 +37,14 @@ export function readTextFile(path: string | URL, options?: ReadOptions): Promise
  * @returns The file contents as a string.
  */
 export function readTextFileSync(path: string | URL): string {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.readTextFileSync(path);
     }
 
     if (!fn) {
         fn = loadFs()?.readFileSync;
         if (!fn) {
-            throw new Error("fs.readFileSync is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 

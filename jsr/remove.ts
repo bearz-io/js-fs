@@ -1,5 +1,5 @@
 import type { RemoveOptions } from "./types.ts";
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import('node:fs').rmSync | undefined = undefined;
 let fnAsync: typeof import('node:fs/promises').rm | undefined = undefined;
@@ -14,14 +14,14 @@ export function remove(
     path: string | URL,
     options?: RemoveOptions,
 ): Promise<void> {
-    if (Deno) {
+    if (globals.Deno) {
         return globals.Deno.remove(path, options);
     }
 
     if (!fnAsync) {
         fnAsync = loadFsAsync()?.rm;
         if (!fnAsync) {
-            throw new Error("fs.promises.rm is not available");
+            return Promise.reject(new Error("No suitable file system module found."));
         }
     }
 
@@ -34,14 +34,14 @@ export function remove(
  * @param options The options for removing the file or directory (optional).
  */
 export function removeSync(path: string | URL, options?: RemoveOptions): void {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.removeSync(path, options);
     }
 
     if (!fn) {
         fn = loadFs()?.rmSync;
         if (!fn) {
-            throw new Error("fs.rmSync is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 

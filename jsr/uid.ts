@@ -1,11 +1,11 @@
-import { DENO, globals } from "./globals.ts";
+import { globals } from "./globals.ts";
 
 /**
  * Gets the current user id on POSIX platforms.
  * Returns `null` on Windows.
  */
 export function uid(): number | null {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.uid();
     }
 

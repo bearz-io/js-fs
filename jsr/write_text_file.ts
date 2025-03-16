@@ -1,5 +1,5 @@
 import type { WriteOptions } from "./types.ts";
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import('node:fs').writeFileSync | undefined = undefined;
 let fnAsync: typeof import('node:fs/promises').writeFile | undefined = undefined;
@@ -17,15 +17,20 @@ export function writeTextFile(
     data: string,
     options?: WriteOptions,
 ): Promise<void> {
-    if (DENO) {
-        return Deno.writeTextFile(path, data, options);
+    if (globals.Deno) {
+        return globals.Deno.writeTextFile(path, data, options);
     }
     
+    if (options?.signal && options?.signal.aborted) {
+        const e = new Error("The operation was aborted.");
+        e.name = "AbortError";
+        return Promise.reject(e);
+    }
 
     if (!fnAsync) {
         fnAsync = loadFsAsync()?.writeFile;
         if (!fnAsync) {
-            throw new Error("fs.promises.writeFile is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 
@@ -37,18 +42,13 @@ export function writeTextFile(
     }
     o.encoding = "utf8";
     if (options?.signal) {
-        options.signal.throwIfAborted();
-
-        if (!globals.AbortController) {
-            throw new Error("AbortController is not available");
+        if (options?.signal && options?.signal.aborted) {
+            const e = new Error("The operation was aborted.");
+            e.name = "AbortError";
+            return Promise.reject(e);
         }
 
-        const c = new globals.AbortController();
-        options.signal.addEventListener("abort", () => {
-            c.abort();
-        });
-
-        o.signal = c.signal;
+        o.signal = options.signal;
     }
 
   
@@ -66,14 +66,14 @@ export function writeTextFileSync(
     data: string,
     options?: WriteOptions,
 ): void {
-    if (DENO) {
+    if (globals.Deno) {
         return Deno.writeTextFileSync(path, data, options);   
     }
     
     if (!fn) {
         fn = loadFs()?.writeFileSync;
         if (!fn) {
-            throw new Error("fs.writeFileSync is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 
@@ -86,17 +86,7 @@ export function writeTextFileSync(
     o.encoding = "utf8";
     if (options?.signal) {
         options.signal.throwIfAborted();
-
-        if (!globals.AbortController) {
-            throw new Error("AbortController is not available");
-        }
-
-        const c = new globals.AbortController();
-        options.signal.addEventListener("abort", () => {
-            c.abort();
-        });
-
-        o.signal = c.signal;
+        o.signal = options.signal;
     }
     return fn(path, data, o);
 };

@@ -1,6 +1,8 @@
 import type { ExistsOptions } from "./types.ts";
-import { gid, stat, uid } from "./posix.ts";
-import { WINDOWS } from "@bearz/runtime-info/os";
+import { stat, statSync } from "./stat.ts";
+import { uid } from "./uid.ts";
+import { gid } from "./gid.ts";
+import { WIN } from "./globals.ts";
 
 // deno-lint-ignore no-explicit-any
 const g = globalThis as any;
@@ -129,7 +131,7 @@ export async function exists(
                 return false;
             }
             if (code === "EPERM" || code === "EACCES") {
-                if (WINDOWS && code === "EACCES" && (options?.isDirectory || options?.isFile)) {
+                if (WIN && code === "EACCES" && (options?.isDirectory || options?.isFile)) {
                     return false; // can't determine if it's a directory or file
                 }
                 return !options?.isReadable;
@@ -237,7 +239,7 @@ export function existsSync(
     options?: ExistsOptions,
 ): boolean {
     try {
-        const stat = Deno.statSync(path);
+        const stat = statSync(path);
         if (
             options &&
             (options.isReadable || options.isDirectory || options.isFile)
@@ -274,7 +276,7 @@ export function existsSync(
                 return false;
             }
             if (code === "EPERM" || code === "EACCES") {
-                if (WINDOWS && code === "EACCES" && (options?.isDirectory || options?.isFile)) {
+                if (WIN && code === "EACCES" && (options?.isDirectory || options?.isFile)) {
                     return false; // can't determine if it's a directory or file
                 }
                 return !options?.isReadable;

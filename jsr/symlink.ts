@@ -1,5 +1,5 @@
 import type { SymlinkOptions } from "./types.ts";
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import('node:fs').symlinkSync | undefined = undefined;
 let fnAsync: typeof import('node:fs/promises').symlink | undefined = undefined;
@@ -17,14 +17,14 @@ export function symlink(
     path: string | URL,
     options?: SymlinkOptions,
 ): Promise<void> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.symlink(target, path, options);
     }
 
     if (!fnAsync) {
         fnAsync = loadFsAsync()?.symlink;
         if (!fnAsync) {
-            throw new Error("fs.promises.symlink is not available");
+            return Promise.reject(new Error("No suitable file system module found."));
         }
     }
 
@@ -42,14 +42,14 @@ export function symlinkSync(
     path: string | URL,
     options?: SymlinkOptions,
 ): void {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.symlinkSync(target, path, options);
     }
 
     if (!fn) {
         fn = loadFs()?.symlinkSync;
         if (!fn) {
-            throw new Error("fs.symlinkSync is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 

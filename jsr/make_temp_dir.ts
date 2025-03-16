@@ -16,11 +16,11 @@ function randomName(prefix?: string, suffix?: string): string {
         .join("");
 
     if (prefix && suffix) {
-        return `${prefix}-${name}${suffix}`;
+        return `${prefix}${name}${suffix}`;
     }
 
     if (prefix) {
-        return `${prefix}-${name}`;
+        return `${prefix}${name}`;
     }
 
     if (suffix) {

@@ -1,6 +1,6 @@
 import type { DirectoryInfo } from "./types.ts";
 import { join } from "@bearz/path";
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 
 
@@ -23,21 +23,21 @@ export function readDir(
         debug: false 
     }
 ): AsyncIterable<DirectoryInfo> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.readDir(path);
     }
 
     if (!fnAsync) {
         fnAsync = loadFsAsync()?.readdir;
         if (!fnAsync) {
-            throw new Error("fs.promises.readdir is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 
     if (!lstatAsync) {
         lstatAsync = loadFsAsync()?.lstat;
         if (!lstatAsync) {
-            throw new Error("fs.promises.lstat is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 
@@ -89,7 +89,7 @@ export function* readDirSync(
         debug: false 
     }
 ): Iterable<DirectoryInfo> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.readDirSync(path);
     }
 
@@ -100,14 +100,14 @@ export function* readDirSync(
     if (!fn) {
         fn = loadFs()?.readdirSync;
         if (!fn) {
-            throw new Error("fs.readdirSync is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 
     if (!lstat) {
         lstat = loadFs()?.lstatSync;
         if (!lstat) {
-            throw new Error("fs.lstatSync is not available");
+            throw new Error("No suitable file system module found.");
         }
     }
 
