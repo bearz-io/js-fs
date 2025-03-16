@@ -1,14 +1,9 @@
 import { toPathString } from "./utils.ts";
-import { join } from "@std/path";
-import {
-    isNotFoundError,
-    makeDir,
-    makeDirSync,
-    readDir,
-    readDirSync,
-    remove,
-    removeSync,
-} from "./posix.ts";
+import { join } from "@bearz/path";
+import { isNotFoundError } from "./errors.ts";
+import { makeDir, makeDirSync } from "./make_dir.ts";
+import { readDir, readDirSync } from "./read_dir.ts";
+import { remove, removeSync } from "./remove.ts";
 
 /**
  * Asynchronously ensures that a directory is empty deletes the directory

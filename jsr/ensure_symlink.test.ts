@@ -1,33 +1,24 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 // TODO(axetroy): Add test for Windows once symlink is implemented for Windows.
+import { test } from "@bearz/testing"
 import { equal, rejects, throws } from "@bearz/assert";
-import * as path from "@std/path";
+import * as path from "@bearz/path";
 import { ensureSymlink, ensureSymlinkSync } from "./ensure_symlink.ts";
-import {
-    lstat,
-    lstatSync,
-    makeDir,
-    makeDirSync,
-    readLink,
-    readLinkSync,
-    readTextFile,
-    readTextFileSync,
-    remove,
-    removeSync,
-    stat,
-    statSync,
-    symlink,
-    symlinkSync,
-    writeFile,
-    writeFileSync,
-    writeTextFile,
-    writeTextFileSync,
-} from "./posix.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { makeDir, makeDirSync } from "./make_dir.ts";
+import { readLink, readLinkSync } from "./read_link.ts";
+import { readTextFile, readTextFileSync } from "./read_text_file.ts";
+import { stat, statSync } from "./stat.ts";
+import { symlink, symlinkSync } from "./symlink.ts";
+import { remove, removeSync } from "./remove.ts";
+import { writeFile, writeFileSync } from "./write_file.ts";
+import { writeTextFile, writeTextFileSync } from "./write_text_file.ts";
+
 
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");
 
-Deno.test("ensureSymlink() rejects if file does not exist", async function () {
+test("ensureSymlink() rejects if file does not exist", async function () {
     const testDir = path.join(testdataDir, "link_file_1");
     const testFile = path.join(testDir, "test.txt");
 
@@ -46,7 +37,7 @@ Deno.test("ensureSymlink() rejects if file does not exist", async function () {
     );
 });
 
-Deno.test("ensureSymlinkSync() throws if file does not exist", function () {
+test("ensureSymlinkSync() throws if file does not exist", function () {
     const testDir = path.join(testdataDir, "link_file_2");
     const testFile = path.join(testDir, "test.txt");
 
@@ -60,7 +51,7 @@ Deno.test("ensureSymlinkSync() throws if file does not exist", function () {
     });
 });
 
-Deno.test("ensureSymlink() ensures linkName links to target", async function () {
+test("ensureSymlink() ensures linkName links to target", async function () {
     const testDir = path.join(testdataDir, "link_file_3");
     const testFile = path.join(testDir, "test.txt");
     const linkFile = path.join(testDir, "link.txt");
@@ -82,7 +73,7 @@ Deno.test("ensureSymlink() ensures linkName links to target", async function () 
     }
 });
 
-Deno.test("ensureSymlinkSync() ensures linkName links to target", function () {
+test("ensureSymlinkSync() ensures linkName links to target", function () {
     const testDir = path.join(testdataDir, "link_file_4");
     const testFile = path.join(testDir, "test.txt");
     const linkFile = path.join(testDir, "link.txt");
@@ -104,7 +95,7 @@ Deno.test("ensureSymlinkSync() ensures linkName links to target", function () {
     }
 });
 
-Deno.test("ensureSymlink() rejects if the linkName path already exist", async function () {
+test("ensureSymlink() rejects if the linkName path already exist", async function () {
     const testDir = path.join(testdataDir, "link_file_5");
     const linkFile = path.join(testDir, "test.txt");
     const linkDir = path.join(testDir, "test_dir");
@@ -141,7 +132,7 @@ Deno.test("ensureSymlink() rejects if the linkName path already exist", async fu
     await remove(testDir, { recursive: true });
 });
 
-Deno.test("ensureSymlinkSync() throws if the linkName path already exist", function () {
+test("ensureSymlinkSync() throws if the linkName path already exist", function () {
     const testDir = path.join(testdataDir, "link_file_6");
     const linkFile = path.join(testDir, "test.txt");
     const linkDir = path.join(testDir, "test_dir");
@@ -172,7 +163,7 @@ Deno.test("ensureSymlinkSync() throws if the linkName path already exist", funct
     removeSync(testDir, { recursive: true });
 });
 
-Deno.test("ensureSymlink() ensures dir linkName links to dir target", async function () {
+test("ensureSymlink() ensures dir linkName links to dir target", async function () {
     const testDir = path.join(testdataDir, "link_file_origin_3");
     const linkDir = path.join(testdataDir, "link_file_link_3");
     const testFile = path.join(testDir, "test.txt");
@@ -197,7 +188,7 @@ Deno.test("ensureSymlink() ensures dir linkName links to dir target", async func
     }
 });
 
-Deno.test("ensureSymlinkSync() ensures dir linkName links to dir target", function () {
+test("ensureSymlinkSync() ensures dir linkName links to dir target", function () {
     const testDir = path.join(testdataDir, "link_file_origin_3");
     const linkDir = path.join(testdataDir, "link_file_link_3");
     const testFile = path.join(testDir, "test.txt");
@@ -220,7 +211,7 @@ Deno.test("ensureSymlinkSync() ensures dir linkName links to dir target", functi
     removeSync(testDir, { recursive: true });
 });
 
-Deno.test("ensureSymlink() creates symlink with relative target", async function () {
+test("ensureSymlink() creates symlink with relative target", async function () {
     const testDir = path.join(testdataDir, "symlink-relative");
     const testLinkName = path.join(testDir, "link.txt");
     const testFile = path.join(testDir, "target.txt");
@@ -242,7 +233,7 @@ Deno.test("ensureSymlink() creates symlink with relative target", async function
     await remove(testDir, { recursive: true });
 });
 
-Deno.test("ensureSymlinkSync() creates symlink with relative target", function () {
+test("ensureSymlinkSync() creates symlink with relative target", function () {
     const testDir = path.join(testdataDir, "symlink-relative-sync");
     const testLinkName = path.join(testDir, "link.txt");
     const testFile = path.join(testDir, "target.txt");

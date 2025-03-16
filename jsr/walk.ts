@@ -1,7 +1,9 @@
-import { join, normalize } from "@std/path";
+import { join, normalize } from "@bearz/path";
 import { createWalkEntry, createWalkEntrySync, toPathString } from "./utils.ts";
 import type { WalkEntry } from "./types.ts";
-import { lstat, lstatSync, readDir, readDirSync, realPath, realPathSync } from "./posix.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { readDir, readDirSync } from "./read_dir.ts";
+import { realPath, realPathSync } from "./realpath.ts";
 
 /** Error thrown in {@linkcode walk} or {@linkcode walkSync} during iteration. */
 export class WalkError extends Error {

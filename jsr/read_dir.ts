@@ -79,7 +79,7 @@ export function readDir(
  * @param path The path to the directory.
  * @returns An iterable that yields directory information.
  */
-export function* readDirSync(
+export function readDirSync(
     path: string | URL,
     options = { 
         /**
@@ -88,7 +88,7 @@ export function* readDirSync(
          */
         debug: false 
     }
-): Iterable<DirectoryInfo> {
+): IteratorObject<DirectoryInfo> {
     if (globals.Deno) {
         return globals.Deno.readDirSync(path);
     }
@@ -111,27 +111,36 @@ export function* readDirSync(
         }
     }
 
-    const data = fn!(path);
-    for (const d of data) {
-        const next = join(path, d);
-        try {
-            const info = lstat!(next);
-            yield {
-                name: d,
-                isFile: info.isFile(),
-                isDirectory: info.isDirectory(),
-                isSymlink: info.isSymbolicLink(),
-            };
-        } catch (e) {
-            if (options.debug && e instanceof Error) {
-                const message = e.stack ?? e.message;
-                const e2 = e as NodeJS.ErrnoException;
-                if (e2.code) {
-                    console.debug(`Failed to lstat ${next}\n${e2.code}\n${message}`);
-                } else {
-                    console.debug(`Failed to lstat ${next}\n${message}`);
+    const obj = {
+        [Symbol.iterator]: function*() : Iterator<DirectoryInfo> {
+            const data = fn!(path);
+            for (const d of data) {
+                const next = join(path, d);
+                try {
+                    const info = lstat!(next);
+                    yield {
+                        name: d,
+                        isFile: info.isFile(),
+                        isDirectory: info.isDirectory(),
+                        isSymlink: info.isSymbolicLink(),
+                    };
+                } catch (e) {
+                    if (options.debug && e instanceof Error) {
+                        const message = e.stack ?? e.message;
+                        const e2 = e as NodeJS.ErrnoException;
+                        if (e2.code) {
+                            console.debug(`Failed to lstat ${next}\n${e2.code}\n${message}`);
+                        } else {
+                            console.debug(`Failed to lstat ${next}\n${message}`);
+                        }
+                    }
                 }
             }
         }
     }
+    
+
+    return Iterator.from(obj);
+
+   
 };

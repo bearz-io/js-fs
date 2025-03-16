@@ -1,26 +1,20 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { test } from "@bearz/testing"
 import { equal, ok, rejects, throws } from "@bearz/assert";
-import * as path from "@std/path";
+import * as path from "@bearz/path";
 import { SubdirectoryMoveError } from "./errors.ts";
 import { move, moveSync } from "./move.ts";
 import { ensureFile, ensureFileSync } from "./ensure_file.ts";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { existsSync } from "./exists.ts";
-import {
-    lstat,
-    lstatSync,
-    makeDir,
-    makeDirSync,
-    readFileSync,
-    readTextFile,
-    readTextFileSync,
-    remove,
-    removeSync,
-    writeFile,
-    writeFileSync,
-} from "./posix.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { makeDir, makeDirSync } from "./make_dir.ts";
+import { readFileSync } from "./read_file.ts";
+import { readTextFile, readTextFileSync } from "./read_text_file.ts";
+import { remove, removeSync } from "./remove.ts";
+import { writeFile, writeFileSync } from "./write_file.ts";
 
-const test = Deno.test;
+
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");
 
@@ -308,11 +302,11 @@ test("fs::moveSync() moves file and can overwrite content", function () {
     );
 
     equal(existsSync(srcFile), false);
-    equal(new TextDecoder().decode(Deno.readFileSync(destFile)), "src");
+    equal(new TextDecoder().decode(readFileSync(destFile)), "src");
 
     // clean up
-    Deno.removeSync(srcDir, { recursive: true });
-    Deno.removeSync(destDir, { recursive: true });
+    removeSync(srcDir, { recursive: true });
+    removeSync(destDir, { recursive: true });
 });
 
 test("fs::moveSync() moves dir", function () {

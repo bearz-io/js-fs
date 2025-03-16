@@ -1,3 +1,4 @@
+import { WIN } from "./globals.ts"
 import {
     type GlobOptions,
     globToRegExp,
@@ -6,7 +7,7 @@ import {
     joinGlobs,
     resolve,
     SEPARATOR_PATTERN,
-} from "@std/path";
+} from "@bearz/path";
 import { walk, walkSync } from "./walk.ts";
 import { toPathString } from "./utils.ts";
 import { createWalkEntry, createWalkEntrySync } from "./utils.ts";
@@ -14,7 +15,7 @@ import type { WalkEntry } from "./types.ts";
 
 export type { GlobOptions, WalkEntry };
 
-const isWindows = Deno.build.os === "windows";
+
 
 /** Options for {@linkcode expandGlob} and {@linkcode expandGlobSync}. */
 export interface ExpandGlobOptions extends Omit<GlobOptions, "os"> {
@@ -61,7 +62,7 @@ function split(path: string): SplitPath {
         segments,
         isAbsolute: isAbsolute_,
         hasTrailingSep: !!path.match(new RegExp(`${s}$`)),
-        winRoot: isWindows && isAbsolute_ ? segments.shift() : undefined,
+        winRoot: WIN && isAbsolute_ ? segments.shift() : undefined,
     };
 }
 

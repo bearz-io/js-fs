@@ -1,10 +1,11 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { test } from "@bearz/testing"
 import { equal, ok, stringIncludes } from "@bearz/assert";
-import { fromFileUrl, join, joinGlobs, normalize, relative } from "@std/path";
+import { fromFileUrl, join, joinGlobs, normalize, relative } from "@bearz/path";
 import { expandGlob, type ExpandGlobOptions, expandGlobSync } from "./expand_glob.ts";
-import { cwd } from "./posix.ts";
+import { cwd } from "./cwd.ts";
+import { globals } from "./globals.ts";
 
-const test = Deno.test;
 
 async function expandGlobArray(
     globString: string,
@@ -225,26 +226,6 @@ test("fs::expandGlobSync() accepts includeDirs option set to false", function ()
     equal(expandGlobSyncArray("subdir", options), []);
 });
 
-test(
-    "fs::expandGlob() throws permission error without fs permissions",
-    async function () {
-        const exampleUrl = new URL("testdata/expand_wildcard.js", import.meta.url);
-        const command = new Deno.Command(Deno.execPath(), {
-            args: [
-                "run",
-                "--quiet",
-                "--no-lock",
-                exampleUrl.toString(),
-            ],
-        });
-        const { code, success, stdout, stderr } = await command.output();
-        const decoder = new TextDecoder();
-        ok(!success);
-        equal(code, 1);
-        equal(decoder.decode(stdout), "");
-        stringIncludes(decoder.decode(stderr), "NotCapable");
-    },
-);
 
 test("fs::expandGlob() returns single entry when root is not glob", async function () {
     const options = { ...EG_OPTIONS, root: join(EG_OPTIONS.root!, "a[b]c") };
@@ -324,10 +305,32 @@ test("fs::expandGlobSync() accepts followSymlinks option set to true without can
     );
 });
 
-const g = globalThis as Record<string, unknown>;
 
-if (g.Deno && !g.BEARZ_USE_NODE) {
-    test(
+if (globals.Deno) {
+    globals.Deno.test(
+        "fs::expandGlob() throws permission error without fs permissions",
+        async function () {
+            const exampleUrl = new URL("testdata/expand_wildcard.js", import.meta.url);
+            const command = new globals.Deno.Command(globals.Deno.execPath(), {
+                args: [
+                    "run",
+                    "--quiet",
+                    "--no-lock",
+                    exampleUrl.toString(),
+                ],
+            });
+            const { code, success, stdout, stderr } = await command.output();
+            const decoder = new TextDecoder();
+            ok(!success);
+            equal(code, 1);
+            equal(decoder.decode(stdout), "");
+            stringIncludes(decoder.decode(stderr), "NotCapable");
+        },
+    );
+    
+
+
+    globals.Deno.test(
         "fs::expandGlob() does not require read permissions when root path is specified",
         {
             permissions: { read: [EG_OPTIONS.root!] },
@@ -338,7 +341,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
         },
     );
 
-    test(
+    globals.Deno.test(
         "fs::expandGlobSync() does not require read permissions when root path is specified",
         {
             permissions: { read: [EG_OPTIONS.root!] },
@@ -349,7 +352,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
         },
     );
 
-    test(
+    globals.Deno.test(
         "fs::expandGlob() does not require read permissions when an absolute glob is specified",
         {
             permissions: { read: [EG_OPTIONS.root!] },
@@ -364,7 +367,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
         },
     );
 
-    test(
+    globals.Deno.test(
         "fs::expandGlobSync() does not require read permissions when an absolute glob is specified",
         {
             permissions: { read: [EG_OPTIONS.root!] },

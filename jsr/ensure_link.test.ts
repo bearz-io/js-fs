@@ -1,23 +1,18 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-// TODO(axetroy): Add test for Windows once symlink is implemented for Windows.
+// TODO(axetroy): Add test for Windows once symlink is implemented for Windows.\
+import { test } from "@bearz/testing";
 import { equal, rejects, throws } from "@bearz/assert";
-import * as path from "@std/path";
+import * as path from "@bearz/path";
 import { ensureLink, ensureLinkSync } from "./ensure_link.ts";
-import {
-    lstat,
-    lstatSync,
-    makeDir,
-    makeDirSync,
-    readFileSync,
-    readTextFile,
-    remove,
-    removeSync,
-    writeFile,
-    writeFileSync,
-    writeTextFile,
-} from "./posix.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { makeDir, makeDirSync } from "./make_dir.ts";
+import { remove, removeSync } from "./remove.ts";
+import { writeFile, writeFileSync } from "./write_file.ts";
+import { writeTextFile } from "./write_text_file.ts";
+import { readTextFile } from "./read_text_file.ts";
+import { readFileSync } from "./read_file.ts";
 
-const test = Deno.test;
+
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");
 

@@ -1,9 +1,10 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { dirname } from "@std/path";
+import { dirname } from "@bearz/path/dirname";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { getFileInfoType, toPathString } from "./utils.ts";
-import { lstat, lstatSync, writeFile, writeFileSync } from "./posix.ts";
-import { isNotFoundError } from "./posix.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { writeFile, writeFileSync } from "./write_file.ts";
+import { isNotFoundError } from "./errors.ts";
 
 /**
  * Asynchronously ensures that the file exists. If the file that is requested to

@@ -1,20 +1,13 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 import { equal, instanceOf, stringIncludes } from "@bearz/assert";
-import * as path from "@std/path";
+import * as path from "@bearz/path";
 import { exists, existsSync } from "./exists.ts";
-import {
-    chmod,
-    chmodSync,
-    makeTempDir,
-    makeTempDirSync,
-    remove,
-    removeSync,
-    symlink,
-    symlinkSync,
-    writeFile,
-    writeFileSync,
-} from "./posix.ts";
-import { WINDOWS } from "@bearz/runtime-info/os";
+import { chmod, chmodSync } from "./chmod.ts";
+import { makeTempDir, makeTempDirSync } from "./make_temp_dir.ts";
+import { writeFile, writeFileSync } from "./write_file.ts";
+import { remove, removeSync } from "./remove.ts";
+import { symlink, symlinkSync } from "./symlink.ts";
+import { WIN } from "./globals.ts";
 
 const test = Deno.test;
 
@@ -55,7 +48,7 @@ test("fs::exists() returns true for an existing file", async function () {
             }),
             true,
         );
-        if (!WINDOWS) {
+        if (!WIN) {
             // TODO(martin-braun): include mode check for Windows tests when chmod is ported to NT
             await chmod(tempFilePath, 0o000);
             equal(
@@ -66,7 +59,7 @@ test("fs::exists() returns true for an existing file", async function () {
             );
         }
     } finally {
-        if (!WINDOWS) {
+        if (!WIN) {
             await chmod(tempFilePath, 0o644);
         }
         await remove(tempDirPath, { recursive: true });
@@ -94,7 +87,7 @@ test("fs::exists() returns true for an existing file symlink", async function ()
             }),
             true,
         );
-        if (!WINDOWS) {
+        if (!WIN) {
             // TODO(martin-braun): include mode check for Windows tests when chmod is ported to NT
             await chmod(tempFilePath, 0o000);
             equal(
@@ -106,7 +99,7 @@ test("fs::exists() returns true for an existing file symlink", async function ()
             // TODO(martin-braun): test unreadable link when Rust's nix::sys::stat::fchmodat has been implemented
         }
     } finally {
-        if (!WINDOWS) {
+        if (!WIN) {
             await chmod(tempFilePath, 0o644);
         }
         await remove(tempDirPath, { recursive: true });
@@ -132,7 +125,7 @@ test("fs::existsSync() returns true for an existing file", function () {
             }),
             true,
         );
-        if (!WINDOWS) {
+        if (!WIN) {
             // TODO(martin-braun): include mode check for Windows tests when chmod is ported to NT
             chmodSync(tempFilePath, 0o000);
             equal(
@@ -143,7 +136,7 @@ test("fs::existsSync() returns true for an existing file", function () {
             );
         }
     } finally {
-        if (!WINDOWS) {
+        if (!WIN) {
             chmodSync(tempFilePath, 0o644);
         }
         removeSync(tempDirPath, { recursive: true });
@@ -171,7 +164,7 @@ test("fs::existsSync() returns true for an existing file symlink", function () {
             }),
             true,
         );
-        if (!WINDOWS) {
+        if (!WIN) {
             // TODO(martin-braun): include mode check for Windows tests when chmod is ported to NT
             chmodSync(tempFilePath, 0o000);
             equal(
@@ -183,7 +176,7 @@ test("fs::existsSync() returns true for an existing file symlink", function () {
             // TODO(martin-braun): test unreadable link when Rust's nix::sys::stat::fchmodat has been implemented
         }
     } finally {
-        if (!WINDOWS) {
+        if (!WIN) {
             chmodSync(tempFilePath, 0o644);
         }
         removeSync(tempDirPath, { recursive: true });
@@ -207,7 +200,7 @@ test("fs::exists() returns true for an existing dir", async function () {
             }),
             false,
         );
-        if (!WINDOWS) {
+        if (!WIN) {
             // TODO(martin-braun): include mode check for Windows tests when chmod is ported to NT
             await chmod(tempDirPath, 0o000);
             equal(
@@ -218,7 +211,7 @@ test("fs::exists() returns true for an existing dir", async function () {
             );
         }
     } finally {
-        if (!WINDOWS) {
+        if (!WIN) {
             await chmod(tempDirPath, 0o755);
         }
         await remove(tempDirPath, { recursive: true });
@@ -244,7 +237,7 @@ test("fs::exists() returns true for an existing dir symlink", async function () 
             }),
             false,
         );
-        if (!WINDOWS) {
+        if (!WIN) {
             // TODO(martin-braun): include mode check for Windows tests when chmod is ported to NT
             await chmod(tempDirPath, 0o000);
             equal(
@@ -256,7 +249,7 @@ test("fs::exists() returns true for an existing dir symlink", async function () 
             // TODO(martin-braun): test unreadable link when Rust's nix::sys::stat::fchmodat has been implemented
         }
     } finally {
-        if (!WINDOWS) {
+        if (!WIN) {
             await chmod(tempDirPath, 0o755);
         }
         await remove(tempDirPath, { recursive: true });
@@ -280,7 +273,7 @@ test("fs::existsSync() returns true for an existing dir", function () {
             }),
             false,
         );
-        if (!WINDOWS) {
+        if (!WIN) {
             // TODO(martin-braun): include mode check for Windows tests when chmod is ported to NT
             chmodSync(tempDirPath, 0o000);
             equal(
@@ -291,7 +284,7 @@ test("fs::existsSync() returns true for an existing dir", function () {
             );
         }
     } finally {
-        if (!WINDOWS) {
+        if (!WIN) {
             chmodSync(tempDirPath, 0o755);
         }
         removeSync(tempDirPath, { recursive: true });
@@ -317,7 +310,7 @@ test("fs::existsSync() returns true for an existing dir symlink", function () {
             }),
             false,
         );
-        if (!WINDOWS) {
+        if (!WIN) {
             // TODO(martin-braun): include mode check for Windows tests when chmod is ported to NT
             chmodSync(tempDirPath, 0o000);
             equal(
@@ -329,7 +322,7 @@ test("fs::existsSync() returns true for an existing dir symlink", function () {
             // TODO(martin-braun): test unreadable link when Rust's nix::sys::stat::fchmodat has been implemented
         }
     } finally {
-        if (!WINDOWS) {
+        if (!WIN) {
             chmodSync(tempDirPath, 0o755);
         }
         removeSync(tempDirPath, { recursive: true });

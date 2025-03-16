@@ -1,4 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { test } from "@bearz/testing";
 import { equal, ok, rejects, throws } from "@bearz/assert";
 import * as path from "@bearz/path";
 import { copy, copySync } from "./copy.ts";
@@ -14,8 +15,6 @@ import { readTextFile } from "./read_text_file.ts";
 import { readFileSync } from "./read_file.ts";
 import { makeTempDir, makeTempDirSync } from "./make_temp_dir.ts";
 import { writeFileSync } from "./write_file.ts";
-import { test } from "@bearz/testing";
-
 
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");
@@ -40,8 +39,11 @@ function testCopySync(name: string, cb: (tempDir: string) => void) {
             const tempDir = makeTempDirSync({
                 prefix: "deno_std_copy_sync_test_",
             });
-            cb(tempDir);
-            removeSync(tempDir, { recursive: true });
+            try {
+                cb(tempDir);
+            } finally {
+                removeSync(tempDir, { recursive: true });
+            }
     });
 }
 

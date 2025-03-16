@@ -1,11 +1,14 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { test } from "@bearz/testing"
 import { walk, WalkError, type WalkOptions, walkSync } from "./walk.ts";
 import { arrayIncludes, equal, rejects, throws } from "@bearz/assert";
-import { fromFileUrl, resolve } from "@std/path";
-import { makeDir, remove } from "./posix.ts";
-import { WINDOWS } from "@bearz/runtime-info/os";
+import { fromFileUrl, resolve } from "@bearz/path";
+import { makeDir } from "./make_dir.ts";
+import { remove } from "./remove.ts";
+import { globals, WIN } from "./globals.ts";
+import { exec } from "./_testutils.ts";
 
-const test = Deno.test;
+
 const testdataDir = resolve(fromFileUrl(import.meta.url), "../testdata/walk");
 
 async function assertWalkPaths(
@@ -160,66 +163,32 @@ test("fs::walkSync() throws Deno.errors.NotFound for non-existent root", () => {
     throws(() => Array.from(walkSync(root)), Deno.errors.NotFound);
 });
 
-// https://github.com/denoland/deno_std/issues/1789
-test({
-    name: "fs::walk() walks unix socket",
-    ignore: WINDOWS,
-    async fn() {
-        const path = resolve(testdataDir, "socket", "a.sock");
-        try {
-            using _listener = Deno.listen({ path, transport: "unix" });
-            await assertWalkPaths("socket", [".", "a.sock", ".gitignore"], {
-                followSymlinks: true,
-            });
-        } finally {
-            await remove(path);
-        }
-    },
-});
+
 
 // https://github.com/denoland/deno_std/issues/1789
-test({
-    name: "fs::walkSync() walks unix socket",
-    ignore: WINDOWS,
-    async fn() {
-        const path = resolve(testdataDir, "socket", "a.sock");
-        try {
-            using _listener = Deno.listen({ path, transport: "unix" });
-            assertWalkSyncPaths("socket", [".", "a.sock", ".gitignore"], {
-                followSymlinks: true,
-            });
-        } finally {
-            await remove(path);
-        }
-    },
-});
-
-test({
-    name: "fs::walk() walks fifo files on unix",
-    ignore: WINDOWS,
-    async fn() {
-        const command = new Deno.Command("mkfifo", {
-            args: [resolve(testdataDir, "fifo", "fifo")],
-        });
-        await command.output();
+test("fs::walk() walks fifo files on unix", { skip: WIN }, async () => {
+    await exec("mkfifo", [resolve(testdataDir, "fifo", "fifo")]);
+    try {
         await assertWalkPaths("fifo", [".", "fifo", ".gitignore"], {
             followSymlinks: true,
-        });
-    },
+        });    
+    } finally {
+        await remove(resolve(testdataDir, "fifo", "fifo"));
+    }
+ 
+   
 });
 
-test({
-    name: "fs::walkSync() walks fifo files on unix",
-    ignore: WINDOWS,
-    async fn() {
-        const command = new Deno.Command("mkfifo", {
-            args: [resolve(testdataDir, "fifo", "fifo")],
-        });
-        await command.output();
+test("fs::walkSync() walks fifo files on unix", { skip: WIN }, async () => {
+
+    await exec("mkfifo", [resolve(testdataDir, "fifo", "fifo")])
+    try {
         assertWalkSyncPaths("fifo", [".", "fifo", ".gitignore"], {
             followSymlinks: true,
         });
-    },
+    } finally {
+        await remove(resolve(testdataDir, "fifo", "fifo"));
+    }
 });
 
 test("fs::walk() rejects with WalkError when root is removed during execution", async () => {
@@ -237,3 +206,41 @@ test("fs::walk() rejects with WalkError when root is removed during execution", 
         throw err;
     }
 });
+
+if (globals.Deno) {
+
+
+    globals.Deno.test({
+        name: "fs::walk() walks unix socket",
+        ignore: WIN,
+        async fn() {
+            const path = resolve(testdataDir, "socket", "a.sock");
+            try {
+                using _listener = globals.Deno.listen({ path, transport: "unix" });
+                await assertWalkPaths("socket", [".", "a.sock", ".gitignore"], {
+                    followSymlinks: true,
+                });
+            } finally {
+                await remove(path);
+            }
+        },
+    });
+
+    // https://github.com/denoland/deno_std/issues/1789
+    globals.Deno.test({
+        name: "fs::walkSync() walks unix socket",
+        ignore: WIN,
+        async fn() {
+            const path = resolve(testdataDir, "socket", "a.sock");
+            try {
+                using _listener = globals.Deno.listen({ path, transport: "unix" });
+                assertWalkSyncPaths("socket", [".", "a.sock", ".gitignore"], {
+                    followSymlinks: true,
+                });
+            } finally {
+                await remove(path);
+            }
+        },
+    });
+
+}

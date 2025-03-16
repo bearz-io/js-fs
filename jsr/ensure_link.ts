@@ -1,8 +1,8 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { dirname } from "@std/path";
+import { dirname } from "@bearz/path/dirname";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { toPathString } from "./utils.ts";
-import { link, linkSync } from "./posix.ts";
+import { link, linkSync } from "./link.ts";
 
 /**
  * Asynchronously ensures that the hard link exists. If the directory structure

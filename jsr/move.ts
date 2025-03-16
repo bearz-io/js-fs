@@ -1,17 +1,10 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import {
-    isNotFoundError,
-    lstat,
-    lstatSync,
-    remove,
-    removeSync,
-    rename,
-    renameSync,
-    stat,
-    statSync,
-} from "./posix.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { remove, removeSync } from "./remove.ts";
+import { rename, renameSync } from "./rename.ts";
+import { stat, statSync } from "./stat.ts";
 import { isSamePath, isSubdir } from "./utils.ts";
-import { AlreadyExistsError, SubdirectoryMoveError } from "./errors.ts";
+import { AlreadyExistsError, SubdirectoryMoveError, isNotFoundError } from "./errors.ts";
 
 const EXISTS_ERROR = new AlreadyExistsError("dest already exists.");
 

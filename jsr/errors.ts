@@ -1,4 +1,4 @@
-import { DENO, globals } from "./globals.ts";
+import { globals } from "./globals.ts";
 
 /**
  * Represents an error that occurs when a file or directory already exists.
@@ -46,7 +46,7 @@ export function isNotFoundError(err: unknown): boolean {
     if (err instanceof NotFoundError)
         return true;
 
-    if (DENO && err instanceof globals.Deno.errors.NotFound) {
+    if (globals.Deno && err instanceof globals.Deno.errors.NotFound) {
         return true;
     }
 
@@ -67,7 +67,7 @@ export function isAlreadyExistsError(err: unknown): boolean {
     if (err instanceof AlreadyExistsError)
         return true;
 
-    if (DENO && err instanceof globals.Deno.errors.AlreadyExists) {
+    if (globals.Deno && err instanceof globals.Deno.errors.AlreadyExists) {
         return true;
     }
 

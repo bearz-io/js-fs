@@ -1,19 +1,14 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { dirname, resolve } from "@std/path";
+import { dirname } from "@bearz/path/dirname";
+import { resolve } from "@bearz/path/resolve";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { getFileInfoType, toPathString } from "./utils.ts";
-import {
-    isAlreadyExistsError,
-    lstat,
-    lstatSync,
-    readLink,
-    readLinkSync,
-    symlink,
-    symlinkSync,
-} from "./posix.ts";
 import type { SymlinkOptions } from "./types.ts";
-import { AlreadyExistsError } from "./errors.ts";
-import { WINDOWS } from "@bearz/runtime-info/os";
+import { AlreadyExistsError, isAlreadyExistsError } from "./errors.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { readLink, readLinkSync  } from "./read_link.ts";
+import { symlink, symlinkSync } from "./symlink.ts";
+import { WIN } from "./globals.ts";
 
 function resolveSymlinkTarget(target: string | URL, linkName: string | URL) {
     if (typeof target !== "string") {
@@ -55,7 +50,7 @@ export async function ensureSymlink(
 
     await ensureDir(dirname(toPathString(linkName)));
 
-    const options: SymlinkOptions | undefined = WINDOWS
+    const options: SymlinkOptions | undefined = WIN
         ? {
             type: srcFilePathType === "dir" ? "dir" : "file",
         }
@@ -116,7 +111,7 @@ export function ensureSymlinkSync(
 
     ensureDirSync(dirname(toPathString(linkName)));
 
-    const options: SymlinkOptions | undefined = WINDOWS
+    const options: SymlinkOptions | undefined = WIN
         ? {
             type: srcFilePathType === "dir" ? "dir" : "file",
         }

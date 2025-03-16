@@ -1,19 +1,14 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { test } from "@bearz/testing";
 import { rejects, throws } from "@bearz/assert";
-import * as path from "@std/path";
+import * as path from "@bearz/path";
 import { ensureFile, ensureFileSync } from "./ensure_file.ts";
-import {
-    makeDir,
-    makeDirSync,
-    remove,
-    removeSync,
-    stat,
-    statSync,
-    writeFile,
-    writeFileSync,
-} from "./posix.ts";
+import { makeDir, makeDirSync } from "./make_dir.ts";
+import { remove, removeSync } from "./remove.ts";
+import { stat, statSync } from "./stat.ts";
+import { writeFile, writeFileSync } from "./write_file.ts";
+import { globals } from "./globals.ts";
 
-const test = Deno.test;
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");
 
@@ -115,10 +110,8 @@ test("fs::ensureFileSync() throws if input is dir", function () {
     }
 });
 
-const g = globalThis as Record<string, unknown>;
-
-if (g.Deno && !g.BEARZ_USE_NODE) {
-    test({
+if (globals.Deno && globals.Deno.permissions) {
+    globals.Deno.test({
         name: "fs::ensureFile() rejects permission fs write error",
         permissions: { read: true },
         async fn() {
@@ -129,12 +122,12 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
             // but don't swallow that error.
             await rejects(
                 async () => await ensureFile(testFile),
-                Deno.errors.NotCapable,
+                globals.Deno.errors.NotCapable,
             );
         },
     });
 
-    test({
+    globals.Deno.test({
         name: "fs::ensureFileSync() throws permission fs write error",
         permissions: { read: true },
         fn() {
@@ -145,12 +138,12 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
             // but don't swallow that error.
             throws(
                 () => ensureFileSync(testFile),
-                Deno.errors.NotCapable,
+                globals.Deno.errors.NotCapable,
             );
         },
     });
 
-    test({
+    globals.Deno.test({
         name: "fs::ensureFile() can write file without write permissions on parent directory",
         permissions: {
             read: true,
@@ -158,7 +151,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
                 path.join(testdataDir, "ensure_file_9"),
                 path.join(testdataDir, "ensure_file_9", "test.txt"),
             ],
-            run: [Deno.execPath()],
+            run: [globals.Deno.execPath()],
         },
         async fn() {
             const testDir = path.join(testdataDir, "ensure_file_9");
@@ -166,7 +159,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
 
             try {
                 await makeDir(testDir, { recursive: true });
-                await Deno.permissions.revoke({ name: "write", path: testDir });
+                await globals.Deno.permissions.revoke({ name: "write", path: testDir });
 
                 // should still work as the parent directory already exists
                 await ensureFile(testFile);
@@ -175,7 +168,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
                 await stat(testFile);
             } finally {
                 // it's dirty, but we can't remove the test output in the same process after dropping the write permission
-                await new Deno.Command(Deno.execPath(), {
+                await new globals.Deno.Command(globals.Deno.execPath(), {
                     args: [
                         "eval",
                         "--no-lock",
@@ -186,7 +179,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
         },
     });
 
-    test({
+    globals.Deno.test({
         name: "fs::ensureFileSync() can write file without write permissions on parent directory",
         permissions: {
             read: true,
@@ -194,24 +187,24 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
                 path.join(testdataDir, "ensure_file_10"),
                 path.join(testdataDir, "ensure_file_10", "test.txt"),
             ],
-            run: [Deno.execPath()],
+            run: [globals.Deno.execPath()],
         },
         fn() {
             const testDir = path.join(testdataDir, "ensure_file_10");
             const testFile = path.join(testDir, "test.txt");
 
             try {
-                Deno.mkdirSync(testDir, { recursive: true });
-                Deno.permissions.revokeSync({ name: "write", path: testDir });
+                globals.Deno.mkdirSync(testDir, { recursive: true });
+                globals.Deno.permissions.revokeSync({ name: "write", path: testDir });
 
                 // should still work as the parent directory already exists
                 ensureFileSync(testFile);
 
                 // test file should exist
-                Deno.statSync(testFile);
+                globals.Deno.statSync(testFile);
             } finally {
                 // it's dirty, but we can't remove the test output in the same process after dropping the write permission
-                new Deno.Command(Deno.execPath(), {
+                new globals.Deno.Command(globals.Deno.execPath(), {
                     args: [
                         "eval",
                         "--no-lock",

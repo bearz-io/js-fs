@@ -1,20 +1,16 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { test } from "@bearz/testing";
 import { equal, rejects, throws } from "@bearz/assert";
-import * as path from "@std/path";
+import * as path from "@bearz/path";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { ensureFile, ensureFileSync } from "./ensure_file.ts";
-import {
-    lstat,
-    lstatSync,
-    makeDir,
-    makeDirSync,
-    remove,
-    removeSync,
-    stat,
-    statSync,
-} from "./posix.ts";
+import { lstat, lstatSync } from "./lstat.ts";
+import { makeDir, makeDirSync } from "./make_dir.ts";
+import { remove, removeSync } from "./remove.ts";
+import { stat, statSync } from "./stat.ts";
+import { globals } from "./globals.ts"
 
-const test = Deno.test;
+
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata", "ensure_dir");
 
@@ -166,10 +162,8 @@ test("fs::ensureDirSync() rejects links to files", function () {
     );
 });
 
-const g = globalThis as Record<string, unknown>;
-
-if (g.Deno && !g.BEARZ_USE_NODE) {
-    test({
+if (globals.Deno && globals.Deno.permissions) {
+    globals.Deno.test({
         name: "fs::ensureDir() rejects permission fs write error",
         permissions: { read: true },
         async fn() {
@@ -179,12 +173,12 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
             // but don't swallow that error.
             await rejects(
                 async () => await ensureDir(baseDir),
-                Deno.errors.NotCapable,
+                globals.Deno.errors.NotCapable,
             );
         },
     });
 
-    test({
+    globals.Deno.test({
         name: "fs::ensureDirSync() throws permission fs write error",
         permissions: { read: true },
         fn() {
@@ -197,7 +191,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
             // but don't swallow that error.
             throws(
                 () => ensureDirSync(baseDir),
-                Deno.errors.NotCapable,
+                globals.Deno.errors.NotCapable,
             );
         },
     });
