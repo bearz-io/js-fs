@@ -70,6 +70,43 @@ export function output(command: string, args: string[], options?: ExecOptions): 
     });
 }
 
+export function outputSync(command: string, args: string[], options?: ExecOptions): output {
+    options ??= {
+        stdin: "pipe",
+        stdout: "pipe",
+        stderr: "pipe",
+    }
+
+    let stdout = "";
+    let stderr = "";
+
+    if (WIN && !command.includes(".")) {
+        command = `${command}.exe`;
+    }
+
+    const child = spawnSync(command, args, {
+        stdio: "pipe",
+        ...options,
+    });
+
+    if (child.error) {
+        throw child.error;
+    }
+
+    if (child.status !== 0) {
+        throw new Error(`Command failed with exit code ${child.status}: ${stderr}`);
+    }
+
+    stdout = child.stdout?.toString() ?? "";
+    stderr = child.stderr?.toString() ?? "";
+
+    return {
+        stdout,
+        stderr,
+        code: child.status ?? 0,
+    } as output;
+}
+
 export function exec(command: string, args: string[], options?: ExecOptions): Promise<number> {
     options ??= {
         stdin: "inherit",

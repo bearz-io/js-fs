@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-unused-vars
 import type { FileInfo, FsSupports, OpenOptions, SeekMode } from "./types.ts";
 import { basename } from "@bearz/path";
-import { DENO, globals, loadFs } from "./globals.ts";
+import { globals, loadFs } from "./globals.ts";
 
 export interface Extras {
     /**
@@ -1184,7 +1184,7 @@ let fnAsync : typeof import("node:fs").open | undefined = undefined;
  * @category File System
  */
 export async function open(path: string | URL, options: OpenOptions): Promise<FsFile> {
-    if (DENO) {
+    if (globals.Deno) {
         const file = await Deno.open(path, options);
         const p = path instanceof URL ? path.toString() : path;
     
@@ -1257,7 +1257,7 @@ export async function open(path: string | URL, options: OpenOptions): Promise<Fs
  * @category File System
  */
 export function openSync(path: string | URL, options: OpenOptions): FsFile {
-    if (DENO) {
+    if (globals.Deno) {
         const file = Deno.openSync(path, options);
         const p = path instanceof URL ? path.toString() : path;
         return new klass(p, options, file);
