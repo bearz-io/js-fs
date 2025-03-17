@@ -57,7 +57,7 @@ export async function makeTempDir(options) {
     }
     const dirname = randomName(options.prefix, options.suffix);
     const path = join(dir, dirname);
-    await fnAsync(path, { recursive: true, mode: 0o700 });
+    await fnAsync(path, { recursive: true, mode: 0o755 });
     return path;
 }
 /**
@@ -91,6 +91,6 @@ export function makeTempDirSync(options) {
     }
     const dirname = randomName(options.prefix, options.suffix);
     const path = join(dir, dirname);
-    fn(path, { recursive: true, mode: 0o700 });
+    fn(path, { recursive: true, mode: 0o755 });
     return path;
 }

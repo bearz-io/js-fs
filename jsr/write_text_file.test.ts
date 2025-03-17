@@ -2,26 +2,28 @@ import { test } from "@bearz/testing";
 import { equal, rejects, throws } from "@bearz/assert";
 import { writeTextFile, writeTextFileSync } from "./write_text_file.ts";
 import { join } from "@bearz/path";
-import { exec, output } from "./_testutils.ts";
+import { makeDir } from "./make_dir.ts";
+import { remove } from "./remove.ts";
+import { readTextFile } from "./read_text_file.ts";
 
 const testData = join(import.meta.dirname!, "test-data", "write_text_file");
 
 test("fs::writeTextFile writes text content to a file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test1.txt");
     const content = "Hello World!";
 
     try {
         await writeTextFile(filePath, content);
-        const o = await output("cat", [filePath]);
-        equal(o.stdout.trim(), content);
+        const o = await readTextFile(filePath);
+        equal(o, content);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(testData, { recursive: true });
     }
 });
 
 test("fs::writeTextFile appends text when append option is true", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test2.txt");
     const content1 = "First line\n";
     const content2 = "Second line";
@@ -29,10 +31,10 @@ test("fs::writeTextFile appends text when append option is true", async () => {
     try {
         await writeTextFile(filePath, content1);
         await writeTextFile(filePath, content2, { append: true });
-        const o = await output("cat", [filePath]);
-        equal(o.stdout.trim(), "First line\nSecond line");
+        const o = await readTextFile(filePath);
+        equal(o, `${content1}${content2}`);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(testData, { recursive: true });
     }
 });
 
@@ -47,16 +49,16 @@ test("fs::writeTextFile handles aborted signal", async () => {
 });
 
 test("fs::writeTextFileSync writes text content to a file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test3.txt");
     const content = "Sync content";
     try {
         writeTextFileSync(filePath, content);
 
-        const o = await output("cat", [filePath]);
-        equal(o.stdout.trim(), content);
+        const o = await readTextFile(filePath);
+        equal(o, content);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 

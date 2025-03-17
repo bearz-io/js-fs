@@ -2,42 +2,43 @@ import { test } from "@bearz/testing";
 import { equal } from "@bearz/assert";
 import { rename, renameSync } from "./rename.ts";
 import { join } from "@bearz/path";
-import { exec, output } from "./_testutils.ts";
+import { makeDir } from "./make_dir.ts";
+import { writeTextFile } from "./write_text_file.ts";
+import { remove } from "./remove.ts";
+import { readTextFile } from "./read_text_file.ts";
 
 const testData = join(import.meta.dirname!, "test-data", "rename-test");
 
 test("fs::rename renames a file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const oldPath = join(testData, "old.txt");
     const newPath = join(testData, "new.txt");
     const content = "test content";
 
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${oldPath}`]);
+        await writeTextFile(oldPath, content);
         await rename(oldPath, newPath);
 
-        const o = await output("cat", [newPath]);
-        const renamedContent = o.stdout.trim();
+        const renamedContent = await readTextFile(newPath);
         equal(renamedContent, content);
     } finally {
-        await exec("rm", ["-f", oldPath, newPath]);
+        await remove(testData, { recursive: true });
     }
 });
 
 test("fs::renameSync renames a file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const oldPath = join(testData, "old-sync.txt");
     const newPath = join(testData, "new-sync.txt");
     const content = "test content sync";
 
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${oldPath}`]);
+        await writeTextFile(oldPath, content);
         renameSync(oldPath, newPath);
 
-        const o = await output("cat", [newPath]);
-        const renamedContent = o.stdout.trim();
+        const renamedContent = await readTextFile(newPath);
         equal(renamedContent, content);
     } finally {
-        await exec("rm", ["-f", oldPath, newPath]);
+        await remove(testData, { recursive: true });
     }
 });

@@ -29,21 +29,21 @@ function existsSync(path: string): boolean {
 test("fs::makeTempDir creates temporary directory with default options", async () => {
     const tempDir = await makeTempDir();
     ok(await exists(tempDir));
-    await exec("rm", ["-rf", tempDir]);
+    await remove(tempDir, { recursive: true });
 });
 
 test("fs::makeTempDir creates directory with prefix", async () => {
     const tempDir = await makeTempDir({ prefix: "test-" });
     ok(await exists(tempDir));
     ok(tempDir.includes("test-"), `Expected prefix 'test-' in ${tempDir}`);
-    await exec("rm", ["-rf", tempDir]);
+    await remove(tempDir, { recursive: true });
 });
 
 test("fs::makeTempDir creates directory with suffix", async () => {
     const tempDir = await makeTempDir({ suffix: "-tmp" });
     ok(await exists(tempDir));
     ok(tempDir.endsWith("-tmp"), `Expected suffix '.tmp' in ${tempDir}`);
-    await exec("rm", ["-rf", tempDir]);
+    await remove(tempDir, { recursive: true });
 });
 
 test("fs::makeTempDir creates directory in specified dir", async () => {
@@ -52,7 +52,7 @@ test("fs::makeTempDir creates directory in specified dir", async () => {
     const tempDir = await makeTempDir({ dir: baseDir });
     ok(tempDir.startsWith(baseDir));
     ok(await exists(tempDir));
-    await remove(baseDir);
+    await remove(baseDir, { recursive: true });
 });
 
 test("fs::makeTempDir uses Deno.makeTempDir when available", async () => {
@@ -72,21 +72,21 @@ test("fs::makeTempDir uses Deno.makeTempDir when available", async () => {
 test("fs::makeTempDirSync creates temporary directory with default options", async () => {
     const tempDir = makeTempDirSync();
     ok(existsSync(tempDir));
-    await exec("rm", ["-rf", tempDir]);
+    await remove(tempDir, { recursive: true });
 });
 
 test("fs::makeTempDirSync creates directory with prefix", async () => {
     const tempDir = makeTempDirSync({ prefix: "test-" });
     ok(existsSync(tempDir));
     ok(tempDir.includes("test-"));
-    await exec("rm", ["-rf", tempDir]);
+    await remove(tempDir, { recursive: true });
 });
 
 test("fs::makeTempDirSync creates directory with suffix", async () => {
     const tempDir = makeTempDirSync({ suffix: "-tmp" });
     ok(existsSync(tempDir));
     ok(tempDir.endsWith("-tmp"));
-    await exec("rm", ["-rf", tempDir]);
+    await remove(tempDir, { recursive: true });
 });
 
 test("fs::makeTempDirSync creates directory in specified dir", async () => {
@@ -96,7 +96,7 @@ test("fs::makeTempDirSync creates directory in specified dir", async () => {
     ok(tempDir.startsWith(baseDir));
 
     ok(existsSync(tempDir));
-    await remove(baseDir);
+    await remove(baseDir, { recursive: true });
 });
 
 test("fs::makeTempDirSync uses Deno.makeTempDirSync when available", () => {

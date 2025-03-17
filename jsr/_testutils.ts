@@ -154,5 +154,5 @@ export function execSync(command: string, args: string[], options?: ExecOptions)
         throw new Error(`Command failed with exit code ${code}`);
     }
 
-    return code; 
+    return code;
 }

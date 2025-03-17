@@ -4,16 +4,19 @@ import { ext, open, openSync } from "./open.ts";
 import { join } from "@bearz/path";
 import { exec, execSync, output, outputSync } from "./_testutils.ts";
 import { globals } from "./globals.ts";
+import { makeDir } from "./make_dir.ts";
+import { writeTextFile } from "./write_text_file.ts";
+import { remove } from "./remove.ts";
 
 const testData = join(import.meta.dirname!, "test-data");
 
 test("fs::open opens file with read access", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "read1.txt");
     const content = "test content";
 
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        await writeTextFile(filePath, content);
         using file = await open(filePath, { read: true });
         ok(file.supports.includes("read"));
 
@@ -23,12 +26,12 @@ test("fs::open opens file with read access", async () => {
         const text = new TextDecoder().decode(buffer.subarray(0, bytesRead!));
         equal(text.trim(), content);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 
 test("fs::open opens file with write access", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "write.txt");
     const content = "test write content";
 
@@ -43,7 +46,7 @@ test("fs::open opens file with write access", async () => {
         const fileContent = await output("cat", [filePath]);
         equal(fileContent.stdout.trim(), content);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 

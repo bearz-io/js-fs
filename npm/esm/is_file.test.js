@@ -3,18 +3,19 @@ import { test } from "@bearz/testing";
 import { equal } from "@bearz/assert";
 import { isFile, isFileSync } from "./is_file.js";
 import { join } from "@bearz/path";
-import { exec } from "./_testutils.js";
 import { makeDir, makeDirSync } from "./make_dir.js";
+import { writeTextFile } from "./write_text_file.js";
+import { remove } from "./remove.js";
 const testData = join(import.meta.dirname, "test-data", "is_file");
 test("fs::isFile returns true for existing file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test.txt");
     try {
-        await exec("bash", ["-c", `echo "test" > ${filePath}`]);
+        await writeTextFile(filePath, "test content");
         const result = await isFile(filePath);
         equal(result, true);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(testData, { recursive: true });
     }
 });
 test("fs::isFile returns false for directory", async () => {
@@ -23,7 +24,7 @@ test("fs::isFile returns false for directory", async () => {
         const result = await isFile(testData);
         equal(result, false);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 test("fs::isFile returns false for non-existent path", async () => {
@@ -34,11 +35,11 @@ test("fs::isFileSync returns true for existing file", async () => {
     await makeDirSync(testData, { recursive: true });
     const filePath = join(testData, "test.txt");
     try {
-        await exec("bash", ["-c", `echo "test" > ${filePath}`]);
+        await writeTextFile(filePath, "test content");
         const result = isFileSync(filePath);
         equal(result, true);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(testData, { recursive: true });
     }
 });
 test("fs::isFileSync returns false for directory", async () => {
@@ -47,7 +48,7 @@ test("fs::isFileSync returns false for directory", async () => {
         const result = isFileSync(testData);
         equal(result, false);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 test("fs::isFileSync returns false for non-existent path", () => {

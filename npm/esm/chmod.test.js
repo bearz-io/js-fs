@@ -6,9 +6,10 @@ import { join } from "@bearz/path";
 import { WIN } from "./globals.js";
 import { exec } from "./_testutils.js";
 import { stat } from "./stat.js";
+import { ensureFile, ensureFileSync } from "./ensure_file.js";
 const testFile = join(import.meta.dirname, "chmod_test.txt");
 test("fs::chmod changes permissions async", { skip: WIN }, async () => {
-    await exec("touch", [testFile]);
+    await ensureFile(testFile);
     try {
         await exec("chmod", ["644", testFile]);
         await chmod(testFile, 0o755);
@@ -19,8 +20,8 @@ test("fs::chmod changes permissions async", { skip: WIN }, async () => {
         await exec("rm", [testFile]);
     }
 });
-test("fs::chmodSync changes permissions sync", async () => {
-    await exec("touch", [testFile]);
+test("fs::chmodSync changes permissions sync", { skip: WIN }, async () => {
+    ensureFileSync(testFile);
     try {
         await exec("chmod", ["644", testFile]);
         chmodSync(testFile, 0o755);

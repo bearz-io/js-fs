@@ -51,7 +51,7 @@ export function remove(
                 }
             }
 
-            return rmDirAsync(path, { ...options });
+            return rmDirAsync(path, { ...options, recursive: true });
         } else {
             return Promise.reject(err);
         }
@@ -96,7 +96,7 @@ export function removeSync(path: string | URL, options?: RemoveOptions): void {
                 }
             }
 
-            rmDir(path, { ...options });
+            rmDir(path, { ...options, recursive: true });
         } else {
             throw err;
         }

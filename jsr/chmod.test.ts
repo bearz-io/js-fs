@@ -10,7 +10,7 @@ import { ensureFile, ensureFileSync } from "./ensure_file.ts";
 const testFile = join(import.meta.dirname!, "chmod_test.txt");
 
 test("fs::chmod changes permissions async", { skip: WIN }, async () => {
-    await ensureFileSync(testFile);
+    await ensureFile(testFile);
 
     try {
         await exec("chmod", ["644", testFile]);

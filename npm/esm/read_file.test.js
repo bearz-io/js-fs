@@ -3,19 +3,21 @@ import { test } from "@bearz/testing";
 import { equal, ok, rejects } from "@bearz/assert";
 import { readFile, readFileSync } from "./read_file.js";
 import { join } from "@bearz/path";
-import { exec } from "./_testutils.js";
+import { makeDir } from "./make_dir.js";
+import { remove } from "./remove.js";
+import { writeTextFile } from "./write_text_file.js";
 const testData = join(import.meta.dirname, "test-data", "read_file");
 test("fs::readFile reads file contents", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test.txt");
     const content = "test content";
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        await writeTextFile(filePath, content);
         const data = await readFile(filePath);
         ok(data instanceof Uint8Array);
         equal(new TextDecoder().decode(data).trim(), content);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 test("fs::readFile with aborted signal rejects", async () => {
@@ -24,15 +26,15 @@ test("fs::readFile with aborted signal rejects", async () => {
     await rejects(() => readFile("test.txt", { signal: controller.signal }), Error);
 });
 test("fs::readFileSync reads file contents", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test-sync.txt");
     const content = "test sync content";
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        await writeTextFile(filePath, content);
         const data = readFileSync(filePath);
         ok(data instanceof Uint8Array);
         equal(new TextDecoder().decode(data).trim(), content);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });

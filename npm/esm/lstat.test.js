@@ -2,62 +2,64 @@ import "./_dnt.test_polyfills.js";
 import { test } from "@bearz/testing";
 import { equal, ok } from "@bearz/assert";
 import { join } from "@bearz/path";
-import { exec } from "./_testutils.js";
 import { lstat, lstatSync } from "./lstat.js";
+import { makeDir } from "./make_dir.js";
+import { remove } from "./remove.js";
+import { writeTextFile } from "./write_text_file.js";
 const testData = join(import.meta.dirname, "test-data", "lstat");
 test("fs::lstat returns file info for a file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test.txt");
     const content = "test content";
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        await writeTextFile(filePath, content);
         const info = await lstat(filePath);
         ok(info.isFile);
         equal(info.name, "test.txt");
         equal(info.path, filePath);
         ok(info.size > 0);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 test("fs::lstat returns file info for a directory", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     try {
         const info = await lstat(testData);
         ok(info.isDirectory);
         ok(!info.isFile);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 test("fs::lstatSync returns file info for a file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test-sync.txt");
     const content = "test content";
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        await writeTextFile(filePath, content);
         const info = lstatSync(filePath);
         ok(info.isFile);
         equal(info.name, "test-sync.txt");
         equal(info.path, filePath);
         ok(info.size > 0);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 test("fs::lstat handles URL paths", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "url-test.txt");
     const fileUrl = new URL(`file://${filePath}`);
     const content = "url test content";
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        await writeTextFile(filePath, content);
         const info = await lstat(fileUrl);
         ok(info.isFile);
         equal(info.name, "url-test.txt");
         equal(info.path, fileUrl.toString());
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 test("fs::lstat throws error for non-existent path", async () => {

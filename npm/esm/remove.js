@@ -42,7 +42,7 @@ export function remove(path, options) {
                     return Promise.reject(new Error("No suitable file system module found."));
                 }
             }
-            return rmDirAsync(path, { ...options });
+            return rmDirAsync(path, { ...options, recursive: true });
         } else {
             return Promise.reject(err);
         }
@@ -82,7 +82,7 @@ export function removeSync(path, options) {
                     throw new Error("No suitable file system module found.");
                 }
             }
-            rmDir(path, { ...options });
+            rmDir(path, { ...options, recursive: true });
         } else {
             throw err;
         }

@@ -74,15 +74,18 @@ import { ext, open, openSync } from "./open.js";
 import { join } from "@bearz/path";
 import { exec, execSync, output, outputSync } from "./_testutils.js";
 import { globals } from "./globals.js";
+import { makeDir } from "./make_dir.js";
+import { writeTextFile } from "./write_text_file.js";
+import { remove } from "./remove.js";
 const testData = join(import.meta.dirname, "test-data");
 test("fs::open opens file with read access", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "read1.txt");
     const content = "test content";
     try {
         const env_1 = { stack: [], error: void 0, hasError: false };
         try {
-            await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+            await writeTextFile(filePath, content);
             const file = __addDisposableResource(
                 env_1,
                 await open(filePath, { read: true }),
@@ -101,11 +104,11 @@ test("fs::open opens file with read access", async () => {
             __disposeResources(env_1);
         }
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 test("fs::open opens file with write access", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "write.txt");
     const content = "test write content";
     try {
@@ -129,7 +132,7 @@ test("fs::open opens file with write access", async () => {
             __disposeResources(env_2);
         }
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 test("fs::openSync opens file with read access", () => {

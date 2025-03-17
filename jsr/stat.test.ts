@@ -13,7 +13,7 @@ const g = globals as Record<string, any>;
 const testData = join(import.meta.dirname!, "test-data", "stat");
 
 test("fs::stat gets file information for a file", async () => {
-    await makeDir   (testData, { recursive: true });
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test.txt");
     const content = "test content";
 
@@ -33,7 +33,7 @@ test("fs::stat gets file information for a file", async () => {
 });
 
 test("fs::stat gets file information for a directory", async () => {
-    await makeDir   (testData, { recursive: true });
+    await makeDir(testData, { recursive: true });
 
     try {
         const info = await stat(testData);

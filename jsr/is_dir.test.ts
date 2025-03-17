@@ -2,7 +2,6 @@ import { test } from "@bearz/testing";
 import { equal } from "@bearz/assert";
 import { isDir, isDirSync } from "./is_dir.ts";
 import { join } from "@bearz/path";
-import { exec } from "./_testutils.ts";
 import { makeDir } from "./make_dir.ts";
 import { ensureFile } from "./ensure_file.ts";
 import { remove } from "./remove.ts";
@@ -39,7 +38,7 @@ test("fs::isDir returns false for file", async () => {
 });
 
 test("fs::isDirSync returns true for existing directory", async () => {
-    await makeDir(testData, { recursive: true })
+    await makeDir(testData, { recursive: true });
     try {
         const result = isDirSync(testData);
         equal(result, true);
@@ -55,7 +54,7 @@ test("fs::isDirSync returns false for non-existent path", () => {
 });
 
 test("fs::isDirSync returns false for file", async () => {
-    await makeDir(testData, { recursive: true })
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test.txt");
 
     try {
