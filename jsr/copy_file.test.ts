@@ -2,10 +2,10 @@ import { test } from "@bearz/testing";
 import { equal, rejects, throws } from "@bearz/assert";
 import { copyFile, copyFileSync } from "./copy_file.ts";
 import { join } from "@bearz/path";
-import { exec } from "./_testutils.ts"
+import { exec } from "./_testutils.ts";
 import { output } from "./_testutils.ts";
 
-const testDir = join(import.meta.dirname!, "test-data");
+const testDir = join(import.meta.dirname!, "test-data", "cp");
 const sourceFile1 = join(testDir, "source1.txt");
 const destFile1 = join(testDir, "dest1.txt");
 const sourceFile2 = join(testDir, "source2.txt");
@@ -15,9 +15,9 @@ const content = "test content";
 test("fs::copyFile copies file asynchronously", async () => {
     try {
         await exec("mkdir", ["-p", testDir]);
-        await exec("bash", ["-c", `echo "${content}" > ${sourceFile1}`]);  
+        await exec("bash", ["-c", `echo "${content}" > ${sourceFile1}`]);
         await copyFile(sourceFile1, destFile1);
-        
+
         const o = await output("cat", [destFile1]);
         const copied = o.stdout.trim();
         equal(copied, content);
@@ -33,9 +33,9 @@ test("fs::copyFile throws when source doesn't exist", () => {
 test("fs::copyFileSync copies file synchronously", async () => {
     try {
         await exec("mkdir", ["-p", testDir]);
-        await exec("bash", ["-c", `echo "${content}" > ${sourceFile2}`]);  
+        await exec("bash", ["-c", `echo "${content}" > ${sourceFile2}`]);
         copyFileSync(sourceFile2, destFile2);
-        
+
         const o = await output("cat", [destFile2]);
         const copied = o.stdout.trim();
         equal(copied, content);
@@ -47,6 +47,6 @@ test("fs::copyFileSync copies file synchronously", async () => {
 test("fs::copyFileSync throws when source doesn't exist", () => {
     throws(
         () => copyFileSync("nonexistent.txt", destFile2),
-        Error
+        Error,
     );
 });

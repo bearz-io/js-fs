@@ -12,11 +12,11 @@ export function uid(): number | null {
     if (globals.process && globals.process.getuid) {
         const uid = globals.process.getuid();
         if (uid === -1 || uid === undefined) {
-            return null
+            return null;
         }
 
         return uid;
     }
 
     return null;
-};
+}

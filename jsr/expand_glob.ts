@@ -1,4 +1,4 @@
-import { WIN } from "./globals.ts"
+import { WIN } from "./globals.ts";
 import {
     type GlobOptions,
     globToRegExp,
@@ -9,13 +9,13 @@ import {
     SEPARATOR_PATTERN,
 } from "@bearz/path";
 import { walk, walkSync } from "./walk.ts";
+import { cwd } from "./cwd.ts";
 import { toPathString } from "./utils.ts";
 import { createWalkEntry, createWalkEntrySync } from "./utils.ts";
 import type { WalkEntry } from "./types.ts";
+import { isNotFoundError } from "./errors.ts";
 
 export type { GlobOptions, WalkEntry };
-
-
 
 /** Options for {@linkcode expandGlob} and {@linkcode expandGlobSync}. */
 export interface ExpandGlobOptions extends Omit<GlobOptions, "os"> {
@@ -67,7 +67,7 @@ function split(path: string): SplitPath {
 }
 
 function throwUnlessNotFound(error: unknown) {
-    if (!(error instanceof Deno.errors.NotFound)) {
+    if (!(isNotFoundError(error))) {
         throw error;
     }
 }
@@ -141,7 +141,7 @@ export async function* expandGlob(
         hasTrailingSep,
         winRoot,
     } = split(toPathString(glob));
-    root ??= isGlobAbsolute ? winRoot ?? "/" : Deno.cwd();
+    root ??= isGlobAbsolute ? winRoot ?? "/" : cwd();
 
     const globOptions: GlobOptions = { extended, globstar, caseInsensitive };
     const absRoot = isGlobAbsolute ? root : resolve(root!); // root is always string here
@@ -299,7 +299,7 @@ export function* expandGlobSync(
         hasTrailingSep,
         winRoot,
     } = split(toPathString(glob));
-    root ??= isGlobAbsolute ? winRoot ?? "/" : Deno.cwd();
+    root ??= isGlobAbsolute ? winRoot ?? "/" : cwd();
 
     const globOptions: GlobOptions = { extended, globstar, caseInsensitive };
     const absRoot = isGlobAbsolute ? root : resolve(root!); // root is always string here

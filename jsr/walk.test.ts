@@ -1,13 +1,13 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { test } from "@bearz/testing"
+import { test } from "@bearz/testing";
 import { walk, WalkError, type WalkOptions, walkSync } from "./walk.ts";
 import { arrayIncludes, equal, rejects, throws } from "@bearz/assert";
 import { fromFileUrl, resolve } from "@bearz/path";
 import { makeDir } from "./make_dir.ts";
 import { remove } from "./remove.ts";
+import { exists as existsAsync } from "./exists.ts";
 import { globals, WIN } from "./globals.ts";
 import { exec } from "./_testutils.ts";
-
 
 const testdataDir = resolve(fromFileUrl(import.meta.url), "../testdata/walk");
 
@@ -39,16 +39,29 @@ function assertWalkSyncPaths(
 
 test("fs::walk() returns current dir for empty dir", async () => {
     const emptyDir = resolve(testdataDir, "empty_dir");
+    if (await existsAsync(emptyDir)) {
+        await remove(emptyDir);
+    }
     await makeDir(emptyDir);
-    await assertWalkPaths("empty_dir", ["."]);
-    await remove(emptyDir);
+    try {
+        await assertWalkPaths("empty_dir", ["."]);
+    } finally {
+        await remove(emptyDir);
+    }
 });
 
 test("fs::walkSync() returns current dir for empty dir", async () => {
     const emptyDir = resolve(testdataDir, "empty_dir");
+    if (await existsAsync(emptyDir)) {
+        await remove(emptyDir);
+    }
     await makeDir(emptyDir);
-    assertWalkSyncPaths("empty_dir", ["."]);
-    await remove(emptyDir);
+
+    try {
+        assertWalkSyncPaths("empty_dir", ["."]);
+    } finally {
+        await remove(emptyDir);
+    }
 });
 
 test("fs::walk() returns current dir and single file", async () =>
@@ -150,38 +163,20 @@ test("fs::walkSync() accepts followSymlinks option set to false", () => {
     });
 });
 
-test("fs::walk() rejects Deno.errors.NotFound for non-existent root", async () => {
-    const root = resolve(testdataDir, "non_existent");
-    await rejects(
-        async () => await Array.fromAsync(walk(root)),
-        Deno.errors.NotFound,
-    );
-});
-
-test("fs::walkSync() throws Deno.errors.NotFound for non-existent root", () => {
-    const root = resolve(testdataDir, "non_existent");
-    throws(() => Array.from(walkSync(root)), Deno.errors.NotFound);
-});
-
-
-
 // https://github.com/denoland/deno_std/issues/1789
 test("fs::walk() walks fifo files on unix", { skip: WIN }, async () => {
     await exec("mkfifo", [resolve(testdataDir, "fifo", "fifo")]);
     try {
         await assertWalkPaths("fifo", [".", "fifo", ".gitignore"], {
             followSymlinks: true,
-        });    
+        });
     } finally {
         await remove(resolve(testdataDir, "fifo", "fifo"));
     }
- 
-   
 });
 
 test("fs::walkSync() walks fifo files on unix", { skip: WIN }, async () => {
-
-    await exec("mkfifo", [resolve(testdataDir, "fifo", "fifo")])
+    await exec("mkfifo", [resolve(testdataDir, "fifo", "fifo")]);
     try {
         assertWalkSyncPaths("fifo", [".", "fifo", ".gitignore"], {
             followSymlinks: true,
@@ -208,7 +203,18 @@ test("fs::walk() rejects with WalkError when root is removed during execution", 
 });
 
 if (globals.Deno) {
+    test("fs::walkSync() throws Deno.errors.NotFound for non-existent root", () => {
+        const root = resolve(testdataDir, "non_existent");
+        throws(() => Array.from(walkSync(root)), globals.Deno.errors.NotFound);
+    });
 
+    test("fs::walk() rejects Deno.errors.NotFound for non-existent root", async () => {
+        const root = resolve(testdataDir, "non_existent");
+        await rejects(
+            async () => await Array.fromAsync(walk(root)),
+            globals.Deno.errors.NotFound,
+        );
+    });
 
     globals.Deno.test({
         name: "fs::walk() walks unix socket",
@@ -242,5 +248,4 @@ if (globals.Deno) {
             }
         },
     });
-
 }

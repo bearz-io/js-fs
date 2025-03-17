@@ -1,10 +1,9 @@
 import { basename } from "@bearz/path";
 import type { FileInfo } from "./types.ts";
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let st : typeof import("node:fs").statSync | undefined;
-let stAsync : typeof import("node:fs/promises").stat | undefined;
-
+let st: typeof import("node:fs").statSync | undefined;
+let stAsync: typeof import("node:fs/promises").stat | undefined;
 
 /**
  * Gets information about a file or directory.
@@ -26,8 +25,9 @@ let stAsync : typeof import("node:fs/promises").stat | undefined;
  * ```
  */
 export function stat(path: string | URL): Promise<FileInfo> {
-    if (DENO) {
-        return globals.Deno.stat(path).then((stat) => {
+    if (globals.Deno) {
+        // deno-lint-ignore no-explicit-any
+        return globals.Deno.stat(path).then((stat: any) => {
             const p = path instanceof URL ? path.toString() : path;
             return {
                 isFile: stat.isFile,
@@ -90,7 +90,7 @@ export function stat(path: string | URL): Promise<FileInfo> {
             isFifo: stat.isFIFO(),
         };
     });
-};
+}
 
 /**
  * Gets information about a file or directory synchronously.
@@ -112,7 +112,7 @@ export function stat(path: string | URL): Promise<FileInfo> {
  * ```
  */
 export function statSync(path: string | URL): FileInfo {
-    if (DENO) {
+    if (globals.Deno) {
         const stat = globals.Deno.statSync(path);
         const p = path instanceof URL ? path.toString() : path;
         return {
@@ -139,7 +139,6 @@ export function statSync(path: string | URL): FileInfo {
             isSocket: stat.isSocket,
             isFifo: stat.isFifo,
         };
-
     }
 
     if (!st) {
@@ -175,4 +174,4 @@ export function statSync(path: string | URL): FileInfo {
         isSocket: stat.isSocket(),
         isFifo: stat.isFIFO(),
     };
-};
+}

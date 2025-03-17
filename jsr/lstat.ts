@@ -2,9 +2,8 @@ import { basename } from "@bearz/path";
 import type { FileInfo } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let ls : typeof import("node:fs").lstatSync | undefined;
-let lsAsync : typeof import("node:fs/promises").lstat | undefined;
-
+let ls: typeof import("node:fs").lstatSync | undefined;
+let lsAsync: typeof import("node:fs/promises").lstat | undefined;
 
 /**
  * Gets information about a file or directory.
@@ -13,7 +12,8 @@ let lsAsync : typeof import("node:fs/promises").lstat | undefined;
  */
 export function lstat(path: string | URL): Promise<FileInfo> {
     if (globals.Deno) {
-        return globals.Deno.lstat(path).then((stat) => {
+        // deno-lint-ignore no-explicit-any
+        return globals.Deno.lstat(path).then((stat: any) => {
             const p = path instanceof URL ? path.toString() : path;
             return {
                 isFile: stat.isFile,
@@ -76,7 +76,7 @@ export function lstat(path: string | URL): Promise<FileInfo> {
             isFifo: stat.isFIFO(),
         } as FileInfo;
     });
-};
+}
 
 /**
  * Gets information about a file or directory synchronously.
@@ -146,4 +146,4 @@ export function lstatSync(path: string | URL): FileInfo {
         isSocket: stat.isSocket(),
         isFifo: stat.isFIFO(),
     };
-};
+}

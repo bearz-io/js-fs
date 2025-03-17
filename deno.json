@@ -16,7 +16,9 @@
             "node_modules/**",
             ".artifacts",
             "vitest.config.ts",
-            ".prototools"
+            ".prototools",
+            "**/testdata/**",
+            "**/test-data/**"
         ]
     },
     "tasks": {

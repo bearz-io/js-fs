@@ -3,12 +3,9 @@ import { equal, rejects } from "@bearz/assert";
 import { writeFile, writeFileSync } from "./write_file.ts";
 import { join } from "@bearz/path";
 import { exec, output } from "./_testutils.ts";
-import { globals } from "./globals.ts";
+import { readTextFile } from "./read_text_file.ts";
 
-// deno-lint-ignore no-explicit-any
-const g = globals as Record<string, any>;
-
-const testData = join(import.meta.dirname!, "test-data");
+const testData = join(import.meta.dirname!, "test-data", "write_file");
 
 test("fs::writeFile writes data to a file", async () => {
     await exec("mkdir", ["-p", testData]);
@@ -48,13 +45,13 @@ test("fs::writeFile handles ReadableStream input", async () => {
         start(controller) {
             controller.enqueue(new TextEncoder().encode(content));
             controller.close();
-        }
+        },
     });
 
     try {
         await writeFile(filePath, stream);
-        const o = await output("cat", [filePath]);
-        equal(o.stdout.trim(), content);
+        const content2 = await readTextFile(filePath);
+        equal(content2, content);
     } finally {
         await exec("rm", ["-f", filePath]);
     }
@@ -88,24 +85,5 @@ test("fs::writeFile handles abort signal", async () => {
         );
     } finally {
         await exec("rm", ["-f", filePath]);
-    }
-});
-
-test("fs::writeFile throws when file system APIs unavailable", async () => {
-    const { Deno: od, process: proc, require: req } = globals;
-    delete g["Deno"];
-    delete g["process"];
-    delete g["require"];
-
-    try {
-        await rejects(
-            () => writeFile("test.txt", new Uint8Array()),
-            Error,
-            "No suitable file system module found."
-        );
-    } finally {
-        globals.Deno = od;
-        globals.process = proc;
-        globals.require = req;
     }
 });

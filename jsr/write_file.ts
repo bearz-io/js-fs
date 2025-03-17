@@ -1,10 +1,9 @@
 import type { WriteOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn: typeof import('node:fs').writeFileSync | undefined = undefined;
-let createWriteStream : typeof import('node:fs').createWriteStream | undefined = undefined;
-let fnAsync: typeof import('node:fs/promises').writeFile | undefined = undefined;
-
+let fn: typeof import("node:fs").writeFileSync | undefined = undefined;
+let createWriteStream: typeof import("node:fs").createWriteStream | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").writeFile | undefined = undefined;
 
 /**
  * Writes binary data to a file.
@@ -18,7 +17,6 @@ export function writeFile(
     data: Uint8Array | ReadableStream<Uint8Array>,
     options?: WriteOptions | undefined,
 ): Promise<void> {
-
     if (globals.Deno) {
         return globals.Deno.writeFile(path, data, options);
     }
@@ -43,21 +41,40 @@ export function writeFile(
             }
         }
 
-        const sr = createWriteStream(path, options);
+        const sr = createWriteStream(path, { encoding: "utf8", flush: true, ...options });
         const writer = new WritableStream({
             write(chunk) {
-                if (options?.signal)
+                if (options?.signal) {
                     options.signal.throwIfAborted();
-                sr.write(chunk);
+                }
+
+                if (chunk instanceof Uint8Array) {
+                    sr.write(chunk);
+                } else if (chunk === null || chunk === undefined) {
+                    sr.end();
+                }
+            },
+
+            close() {
+                sr.close();
+                sr.end();
             },
         });
 
-        return data.pipeTo(writer).finally(() => {
-            sr.close();
+        const wait = new Promise<void>((resolve, reject) => {
+            sr.on("error", (err) => {
+                reject(err);
+            });
+
+            sr.on("finish", () => {
+                resolve();
+            });
         });
+
+        return data.pipeTo(writer).then(() => wait);
     }
 
-    const o : Record<string, unknown> = {};
+    const o: Record<string, unknown> = {};
     o.mode = options?.mode;
     o.flag = options?.append ? "a" : "w";
     if (options?.create) {
@@ -76,7 +93,7 @@ export function writeFile(
     }
 
     return fnAsync(path, data, o);
-};
+}
 
 /**
  * Synchronously writes binary data to a file.
@@ -90,7 +107,7 @@ export function writeFileSync(
     options?: WriteOptions | undefined,
 ): void {
     if (globals.Deno) {
-        return Deno.writeFileSync(path, data, options);
+        return globals.Deno.writeFileSync(path, data, options);
     }
 
     if (!fn) {
@@ -100,7 +117,7 @@ export function writeFileSync(
         }
     }
 
-    const o : Record<string, unknown> = {};
+    const o: Record<string, unknown> = {};
     o.mode = options?.mode;
     o.flag = options?.append ? "a" : "w";
     if (options?.create) {
@@ -111,6 +128,6 @@ export function writeFileSync(
         options.signal.throwIfAborted();
         o.signal = options.signal;
     }
-    
+
     return fn(path, data, o);
-};
+}

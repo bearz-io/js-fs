@@ -1,9 +1,8 @@
 import type { WriteOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn: typeof import('node:fs').writeFileSync | undefined = undefined;
-let fnAsync: typeof import('node:fs/promises').writeFile | undefined = undefined;
-
+let fn: typeof import("node:fs").writeFileSync | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").writeFile | undefined = undefined;
 
 /**
  * Writes text data to a file.
@@ -20,7 +19,7 @@ export function writeTextFile(
     if (globals.Deno) {
         return globals.Deno.writeTextFile(path, data, options);
     }
-    
+
     if (options?.signal && options?.signal.aborted) {
         const e = new Error("The operation was aborted.");
         e.name = "AbortError";
@@ -51,9 +50,8 @@ export function writeTextFile(
         o.signal = options.signal;
     }
 
-  
-    return fnAsync(path, data, o)
-};
+    return fnAsync(path, data, o);
+}
 
 /**
  * Synchronously writes text data to a file.
@@ -67,9 +65,9 @@ export function writeTextFileSync(
     options?: WriteOptions,
 ): void {
     if (globals.Deno) {
-        return Deno.writeTextFileSync(path, data, options);   
+        return globals.Deno.writeTextFileSync(path, data, options);
     }
-    
+
     if (!fn) {
         fn = loadFs()?.writeFileSync;
         if (!fn) {
@@ -89,4 +87,4 @@ export function writeTextFileSync(
         o.signal = options.signal;
     }
     return fn(path, data, o);
-};
+}

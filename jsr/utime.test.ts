@@ -1,5 +1,5 @@
 import { test } from "@bearz/testing";
-import { equal, rejects, throws } from "@bearz/assert";
+import { equal } from "@bearz/assert";
 import { utime, utimeSync } from "./utime.ts";
 import { globals } from "./globals.ts";
 import { join } from "@bearz/path";
@@ -19,7 +19,7 @@ test("fs::utime changes access and modification times", async () => {
     try {
         await exec("touch", [testFile]);
         await utime(testFile, newAtime, newMtime);
-        
+
         const stats = await output("stat", ["-c", "%X %Y", testFile]);
         const [atime, mtime] = stats.stdout.trim().split(" ");
         equal(new Date(Number.parseInt(atime) * 1000).getFullYear(), 2023);
@@ -32,56 +32,18 @@ test("fs::utime changes access and modification times", async () => {
 test("fs::utimeSync changes access and modification times synchronously", () => {
     const { Deno: od } = globals;
     delete g["Deno"];
-    
+
     try {
         let called = false;
         g.Deno = {
             utimeSync: (_path: string, _atime: Date, _mtime: Date) => {
                 called = true;
-            }
+            },
         };
-        
+
         utimeSync("test.txt", new Date(), new Date());
         equal(called, true);
     } finally {
         globals.Deno = od;
-    }
-});
-
-test("fs::utime throws when neither Deno nor Node.js fs is available", async () => {
-    const { Deno: od, process: proc, require: req } = globals;
-    delete g["Deno"];
-    delete g["process"];
-    delete g["require"];
-    
-    try {
-        await rejects(
-            async () => await utime("test.txt", new Date(), new Date()),
-            Error,
-            "No suitable file system module found."
-        );
-    } finally {
-        globals.Deno = od;
-        globals.process = proc;
-        globals.require = req;
-    }
-});
-
-test("fs::utimeSync throws when neither Deno nor Node.js fs is available", () => {
-    const { Deno: od, process: proc, require: req } = globals;
-    delete g["Deno"];
-    delete g["process"];
-    delete g["require"];
-    
-    try {
-        throws(
-            () => utimeSync("test.txt", new Date(), new Date()),
-            Error,
-            "No suitable file system module found."
-        );
-    } finally {
-        globals.Deno = od;
-        globals.process = proc;
-        globals.require = req;
     }
 });

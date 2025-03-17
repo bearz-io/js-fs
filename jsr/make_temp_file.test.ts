@@ -1,5 +1,5 @@
 import { test } from "@bearz/testing";
-import { ok, equal } from "@bearz/assert";
+import { equal, ok } from "@bearz/assert";
 import { makeTempFile, makeTempFileSync } from "./make_temp_file.ts";
 import { exec, execSync } from "./_testutils.ts";
 import { dirname, join } from "@bearz/path";
@@ -20,7 +20,6 @@ function exists(path: string): Promise<boolean> {
 
 function existsSync(path: string): boolean {
     try {
-        
         return execSync("test", ["-f", path]) === 0;
     } catch {
         return false;
@@ -81,7 +80,7 @@ test("fs::makeTempFile uses Deno.makeTempFile when available", async () => {
     const testFile = "/tmp/test-deno-file";
     try {
         g.Deno = {
-            makeTempFile: () => Promise.resolve(testFile)
+            makeTempFile: () => Promise.resolve(testFile),
         };
         const file = await makeTempFile();
         equal(file, testFile);
@@ -96,7 +95,7 @@ test("fs::makeTempFileSync uses Deno.makeTempFileSync when available", () => {
     const testFile = "/tmp/test-deno-file-sync";
     try {
         g.Deno = {
-            makeTempFileSync: () => testFile
+            makeTempFileSync: () => testFile,
         };
         const file = makeTempFileSync();
         equal(file, testFile);

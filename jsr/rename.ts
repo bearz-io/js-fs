@@ -1,8 +1,7 @@
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn: typeof import('node:fs').renameSync | undefined = undefined;
-let fnAsync: typeof import('node:fs/promises').rename | undefined = undefined;
-
+let fn: typeof import("node:fs").renameSync | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").rename | undefined = undefined;
 
 /**
  * Renames a file or directory.
@@ -26,7 +25,7 @@ export function rename(
     }
 
     return fnAsync(oldPath, newPath);
-};
+}
 
 /**
  * Synchronously renames a file or directory.
@@ -46,4 +45,4 @@ export function renameSync(oldPath: string | URL, newPath: string | URL): void {
     }
 
     fn(oldPath, newPath);
-};
+}

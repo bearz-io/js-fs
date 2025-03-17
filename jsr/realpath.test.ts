@@ -16,7 +16,7 @@ test("fs::realPath resolves path when Deno exists", async () => {
 
     try {
         g.Deno = {
-            realPath: (_: string) => Promise.resolve("/real/path")
+            realPath: (_: string) => Promise.resolve("/real/path"),
         };
         const result = await realPath("/test/path");
         equal(result, "/real/path");
@@ -29,15 +29,12 @@ test("fs::realPath resolves path using node fs", async () => {
     const testFile = join(testData, "realpath-test.txt");
     await exec("mkdir", ["-p", testData]);
     await exec("touch", [testFile]);
-        
-   
+
     try {
         const result = await realPath(testFile);
         equal(result.endsWith("realpath-test.txt"), true);
     } finally {
-       
         await exec("rm", ["-f", testFile]);
-       
     }
 });
 
@@ -62,7 +59,7 @@ test("fs::realPathSync resolves path when Deno exists", () => {
 
     try {
         g.Deno = {
-            realPathSync: (_: string) => "/real/path"
+            realPathSync: (_: string) => "/real/path",
         };
         const result = realPathSync("/test/path");
         equal(result, "/real/path");
@@ -72,8 +69,6 @@ test("fs::realPathSync resolves path when Deno exists", () => {
 });
 
 test("fs::realPathSync resolves path using node fs", async () => {
-    
-
     const testFile = join(testData, "realpath-sync-test.txt");
     await exec("touch", [testFile]);
 

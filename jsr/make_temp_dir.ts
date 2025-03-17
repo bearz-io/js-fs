@@ -1,12 +1,10 @@
 import type { MakeTempOptions } from "./types.ts";
-import { DENO, WIN, globals, loadFs, loadFsAsync } from "./globals.ts";
-import { join} from "@bearz/path";
+import { globals, loadFs, loadFsAsync, WIN } from "./globals.ts";
+import { join } from "@bearz/path";
 import { isAbsolute } from "node:path";
 
-
-let fn : typeof import('node:fs').mkdirSync | undefined = undefined;
-let fnAsync : typeof import('node:fs/promises').mkdir | undefined = undefined;
-
+let fn: typeof import("node:fs").mkdirSync | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").mkdir | undefined = undefined;
 
 function randomName(prefix?: string, suffix?: string): string {
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -35,11 +33,11 @@ function randomName(prefix?: string, suffix?: string): string {
  * @param options The options for creating the temporary directory (optional).
  * @returns A promise that resolves with the path to the created temporary directory.
  */
-export async  function makeTempDir(options?: MakeTempOptions): Promise<string> {
-    if (DENO) {
+export async function makeTempDir(options?: MakeTempOptions): Promise<string> {
+    if (globals.Deno) {
         return globals.Deno.makeTempDir(options);
     }
-  
+
     if (!fnAsync) {
         fnAsync = loadFsAsync()?.mkdir;
         if (!fnAsync) {
@@ -47,22 +45,26 @@ export async  function makeTempDir(options?: MakeTempOptions): Promise<string> {
         }
     }
     options ??= {};
-    let dir: string = ""
-     if (!options.dir) {
-        dir = WIN ? (globals.process.env.TEMP ?? "c:\\Temp") : (globals.process.env.TMPDIR ?? "/tmp");
-     } else if (options.dir && !isAbsolute(options.dir)) {
-        dir = WIN ? (globals.process.env.TEMP ?? "c:\\Temp") : (globals.process.env.TMPDIR ?? "/tmp");
+    let dir: string = "";
+    if (!options.dir) {
+        dir = WIN
+            ? (globals.process.env.TEMP ?? "c:\\Temp")
+            : (globals.process.env.TMPDIR ?? "/tmp");
+    } else if (options.dir && !isAbsolute(options.dir)) {
+        dir = WIN
+            ? (globals.process.env.TEMP ?? "c:\\Temp")
+            : (globals.process.env.TMPDIR ?? "/tmp");
         dir = join(dir, options.dir);
-     } else {
+    } else {
         dir = options.dir;
-     }
+    }
 
-     const dirname = randomName(options.prefix, options.suffix);
-     const path = join(dir, dirname);
+    const dirname = randomName(options.prefix, options.suffix);
+    const path = join(dir, dirname);
 
     await fnAsync(path, { recursive: true, mode: 0o700 });
     return path;
-};
+}
 
 /**
  * Synchronously creates a temporary directory.
@@ -70,8 +72,8 @@ export async  function makeTempDir(options?: MakeTempOptions): Promise<string> {
  * @returns The path to the created temporary directory.
  */
 export function makeTempDirSync(options?: MakeTempOptions): string {
-    if (DENO) {
-        return Deno.makeTempDirSync(options);
+    if (globals.Deno) {
+        return globals.Deno.makeTempDirSync(options);
     }
 
     if (!fn) {
@@ -82,18 +84,22 @@ export function makeTempDirSync(options?: MakeTempOptions): string {
     }
 
     options ??= {};
-    let dir: string = ""
-     if (!options.dir) {
-        dir = WIN ? (globals.process.env.TEMP ?? "c:\\Temp") : (globals.process.env.TMPDIR ?? "/tmp");
-     } else if (options.dir && !isAbsolute(options.dir)) {
-        dir = WIN ? (globals.process.env.TEMP ?? "c:\\Temp") : (globals.process.env.TMPDIR ?? "/tmp");
+    let dir: string = "";
+    if (!options.dir) {
+        dir = WIN
+            ? (globals.process.env.TEMP ?? "c:\\Temp")
+            : (globals.process.env.TMPDIR ?? "/tmp");
+    } else if (options.dir && !isAbsolute(options.dir)) {
+        dir = WIN
+            ? (globals.process.env.TEMP ?? "c:\\Temp")
+            : (globals.process.env.TMPDIR ?? "/tmp");
         dir = join(dir, options.dir);
-     } else {
+    } else {
         dir = options.dir;
-     }
+    }
 
-        const dirname = randomName(options.prefix, options.suffix);
-        const path = join(dir, dirname);
+    const dirname = randomName(options.prefix, options.suffix);
+    const path = join(dir, dirname);
     fn(path, { recursive: true, mode: 0o700 });
     return path;
-};
+}

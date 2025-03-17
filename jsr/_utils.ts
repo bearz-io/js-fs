@@ -1,4 +1,4 @@
-import { fromFileUrl } from "@bearz/path"
+import { fromFileUrl } from "@bearz/path";
 
 export function toPathString(
     pathUrl: string | URL,

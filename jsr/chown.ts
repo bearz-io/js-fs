@@ -1,7 +1,7 @@
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn : typeof import("node:fs").chownSync | undefined;
-let fnAsync : typeof import("node:fs/promises").chown | undefined;
+let fn: typeof import("node:fs").chownSync | undefined;
+let fnAsync: typeof import("node:fs/promises").chown | undefined;
 
 /**
  * Changes the owner and group of a file or directory asynchronously.
@@ -41,7 +41,7 @@ export function chown(
     }
 
     return fnAsync(path, uid, gid);
-};
+}
 
 /**
  * Changes the owner and group of a file or directory synchronously.
@@ -77,4 +77,4 @@ export function chownSync(path: string | URL, uid: number, gid: number): void {
     }
 
     return fn(path, uid, gid);
-};
+}

@@ -1,7 +1,7 @@
 import { spawn, spawnSync } from "node:child_process";
-import { globals, WIN} from "./globals.ts";
+import { globals, WIN } from "./globals.ts";
 
-export type stdio = 'inherit' | 'pipe' | 'null';
+export type stdio = "inherit" | "pipe" | "null";
 
 export interface ExecOptions {
     stdin?: stdio;
@@ -22,14 +22,14 @@ export interface output {
     stdout: string;
     stderr: string;
     code: number;
-} 
+}
 
 export function output(command: string, args: string[], options?: ExecOptions): Promise<output> {
     options ??= {
         stdin: "pipe",
         stdout: "pipe",
         stderr: "pipe",
-    }
+    };
 
     let stdout = "";
     let stderr = "";
@@ -75,7 +75,7 @@ export function outputSync(command: string, args: string[], options?: ExecOption
         stdin: "pipe",
         stdout: "pipe",
         stderr: "pipe",
-    }
+    };
 
     let stdout = "";
     let stderr = "";
@@ -112,7 +112,7 @@ export function exec(command: string, args: string[], options?: ExecOptions): Pr
         stdin: "inherit",
         stdout: "inherit",
         stderr: "inherit",
-    }
+    };
 
     if (WIN && !command.includes(".")) {
         command = `${command}.exe`;
@@ -143,7 +143,7 @@ export function execSync(command: string, args: string[], options?: ExecOptions)
         stdin: "inherit",
         stdout: "inherit",
         stderr: "inherit",
-    }
+    };
 
     return spawnSync(command, args, {
         stdio: "inherit",

@@ -1,8 +1,8 @@
 import { toPathString } from "./utils.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let lk : typeof import("node:fs").linkSync | undefined;
-let lkAsync : typeof import("node:fs/promises").link | undefined;
+let lk: typeof import("node:fs").linkSync | undefined;
+let lkAsync: typeof import("node:fs/promises").link | undefined;
 
 /**
  * Creates a hard link.
@@ -28,19 +28,16 @@ export function link(oldPath: string | URL, newPath: string | URL): Promise<void
     if (globals.Deno) {
         return globals.Deno.link(toPathString(oldPath), toPathString(newPath));
     }
-    
-    if (lkAsync) {
-        return lkAsync(oldPath, newPath);
+
+    if (!lkAsync) {
+        lkAsync = loadFsAsync()?.link;
+        if (!lkAsync) {
+            return Promise.reject(new Error("No suitable file system module found."));
+        }
     }
 
-    const fs = loadFsAsync();
-    if (fs) {
-        lkAsync = fs.link;
-        return lkAsync(oldPath, newPath);
-    }
-
-    throw new Error("No suitable file system module found.");
-};
+    return lkAsync(oldPath, newPath);
+}
 
 /**
  * Synchronously creates a hard link.
@@ -65,15 +62,13 @@ export function linkSync(oldPath: string | URL, newPath: string | URL): void {
     if (globals.Deno) {
         return globals.Deno.linkSync(toPathString(oldPath), toPathString(newPath));
     }
-    if (lk) {
-        return lk(oldPath, newPath);
+
+    if (!lk) {
+        lk = loadFs()?.linkSync;
+        if (!lk) {
+            throw new Error("No suitable file system module found.");
+        }
     }
 
-    const fs = loadFs();
-    if (fs) {
-        lk = fs.linkSync;
-        return lk(oldPath, newPath);
-    }
-
-    throw new Error("No suitable file system module found.");
-};
+    lk(oldPath, newPath);
+}

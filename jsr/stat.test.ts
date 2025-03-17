@@ -8,7 +8,7 @@ import { globals } from "./globals.ts";
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
 
-const testData = join(import.meta.dirname!, "test-data");
+const testData = join(import.meta.dirname!, "test-data", "stat");
 
 test("fs::stat gets file information for a file", async () => {
     await exec("mkdir", ["-p", testData]);
@@ -18,7 +18,7 @@ test("fs::stat gets file information for a file", async () => {
     try {
         await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
         const info = await stat(filePath);
-        
+
         ok(info.isFile);
         equal(info.name, "test.txt");
         equal(info.path, filePath);
@@ -35,11 +35,11 @@ test("fs::stat gets file information for a directory", async () => {
 
     try {
         const info = await stat(testData);
-        
+
         ok(info.isDirectory);
         ok(!info.isFile);
         ok(!info.isSymlink);
-        equal(info.name, "test-data");
+        equal(info.name, "stat");
     } finally {
         await exec("rm", ["-rf", testData]);
     }
@@ -53,7 +53,7 @@ test("fs::stat works with URL paths", async () => {
     try {
         await exec("bash", ["-c", `echo "url test" > ${filePath}`]);
         const info = await stat(fileUrl);
-        
+
         ok(info.isFile);
         equal(info.name, "url-test.txt");
         equal(info.path, fileUrl.toString());
@@ -88,8 +88,8 @@ test("fs::statSync gets file information synchronously", () => {
                 isBlockDevice: false,
                 isCharDevice: false,
                 isSocket: false,
-                isFifo: false
-            })
+                isFifo: false,
+            }),
         };
 
         const info = statSync("test.txt");

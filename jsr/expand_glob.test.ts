@@ -1,11 +1,10 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { test } from "@bearz/testing"
+import { test } from "@bearz/testing";
 import { equal, ok, stringIncludes } from "@bearz/assert";
 import { fromFileUrl, join, joinGlobs, normalize, relative } from "@bearz/path";
 import { expandGlob, type ExpandGlobOptions, expandGlobSync } from "./expand_glob.ts";
 import { cwd } from "./cwd.ts";
 import { globals } from "./globals.ts";
-
 
 async function expandGlobArray(
     globString: string,
@@ -226,7 +225,6 @@ test("fs::expandGlobSync() accepts includeDirs option set to false", function ()
     equal(expandGlobSyncArray("subdir", options), []);
 });
 
-
 test("fs::expandGlob() returns single entry when root is not glob", async function () {
     const options = { ...EG_OPTIONS, root: join(EG_OPTIONS.root!, "a[b]c") };
     equal(await expandGlobArray("*", options), ["foo"]);
@@ -305,7 +303,6 @@ test("fs::expandGlobSync() accepts followSymlinks option set to true without can
     );
 });
 
-
 if (globals.Deno) {
     globals.Deno.test(
         "fs::expandGlob() throws permission error without fs permissions",
@@ -327,8 +324,6 @@ if (globals.Deno) {
             stringIncludes(decoder.decode(stderr), "NotCapable");
         },
     );
-    
-
 
     globals.Deno.test(
         "fs::expandGlob() does not require read permissions when root path is specified",

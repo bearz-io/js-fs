@@ -1,6 +1,5 @@
 import { stat, statSync } from "./stat.ts";
 
-
 /**
  * Checks if a path is a directory asynchronously.
  * @description
@@ -26,7 +25,7 @@ export function isDir(path: string | URL): Promise<boolean> {
     return stat(path)
         .then((stat) => stat.isDirectory)
         .catch(() => false);
-};
+}
 
 /**
  * Synchronously checks if a path is a directory.
@@ -55,4 +54,4 @@ export function isDirSync(path: string | URL): boolean {
     } catch {
         return false;
     }
-};
+}

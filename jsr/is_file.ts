@@ -25,7 +25,7 @@ export function isFile(path: string | URL): Promise<boolean> {
     return stat(path)
         .then((stat) => stat.isFile)
         .catch(() => false);
-};
+}
 
 /**
  * Synchronously checks if a path is a file.
@@ -54,4 +54,4 @@ export function isFileSync(path: string | URL): boolean {
     } catch {
         return false;
     }
-};
+}

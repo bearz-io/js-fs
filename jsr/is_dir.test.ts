@@ -4,7 +4,7 @@ import { isDir, isDirSync } from "./is_dir.ts";
 import { join } from "@bearz/path";
 import { exec } from "./_testutils.ts";
 
-const testData = join(import.meta.dirname!, "test-data");
+const testData = join(import.meta.dirname!, "test-data", "is_dir");
 
 test("fs::isDir returns true for existing directory", async () => {
     await exec("mkdir", ["-p", testData]);
@@ -25,9 +25,9 @@ test("fs::isDir returns false for non-existent path", async () => {
 test("fs::isDir returns false for file", async () => {
     await exec("mkdir", ["-p", testData]);
     const filePath = join(testData, "test.txt");
-    
+
     try {
-        await exec("bash", ["-c", `echo "test" > ${filePath}`]);
+        await exec("touch", [filePath]);
         const result = await isDir(filePath);
         equal(result, false);
     } finally {
@@ -51,15 +51,15 @@ test("fs::isDirSync returns false for non-existent path", () => {
     equal(result, false);
 });
 
-test("fs::isDirSync returns false for file", () => {
-    exec("mkdir", ["-p", testData]);
+test("fs::isDirSync returns false for file", async () => {
+    await exec("mkdir", ["-p", testData]);
     const filePath = join(testData, "test.txt");
-    
+
     try {
-        exec("bash", ["-c", `echo "test" > ${filePath}`]);
+        await exec("bash", ["-c", `echo "test" > ${filePath}`]);
         const result = isDirSync(filePath);
         equal(result, false);
     } finally {
-        exec("rm", ["-rf", testData]);
+        await exec("rm", ["-rf", testData]);
     }
 });

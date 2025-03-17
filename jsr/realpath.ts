@@ -1,7 +1,7 @@
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn: typeof import('node:fs').realpathSync | undefined = undefined;
-let fnAsync: typeof import('node:fs/promises').realpath | undefined = undefined;
+let fn: typeof import("node:fs").realpathSync | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").realpath | undefined = undefined;
 
 /**
  * Resolves the real path of a file or directory.
@@ -21,7 +21,7 @@ export function realPath(path: string | URL): Promise<string> {
     }
 
     return fnAsync(path);
-};
+}
 
 /**
  * Synchronously resolves the real path of a file or directory.
@@ -41,4 +41,4 @@ export function realPathSync(path: string | URL): string {
     }
 
     return fn(path);
-};
+}

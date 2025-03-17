@@ -1,19 +1,18 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { test } from "@bearz/testing"
+import { test } from "@bearz/testing";
 import { equal, ok, rejects, throws } from "@bearz/assert";
 import * as path from "@bearz/path";
 import { SubdirectoryMoveError } from "./errors.ts";
 import { move, moveSync } from "./move.ts";
 import { ensureFile, ensureFileSync } from "./ensure_file.ts";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
-import { existsSync } from "./exists.ts";
+import { exists as existsAsync, existsSync } from "./exists.ts";
 import { lstat, lstatSync } from "./lstat.ts";
 import { makeDir, makeDirSync } from "./make_dir.ts";
 import { readFileSync } from "./read_file.ts";
 import { readTextFile, readTextFileSync } from "./read_text_file.ts";
 import { remove, removeSync } from "./remove.ts";
 import { writeFile, writeFileSync } from "./write_file.ts";
-
 
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");
@@ -35,17 +34,21 @@ test("fs::move() creates dest dir if it does not exist", async function () {
 
     await makeDir(srcDir, { recursive: true });
 
-    // if dest directory not exist
-    await rejects(
-        async () => {
-            await move(srcDir, destDir);
-            throw new Error("should not throw error");
-        },
-        Error,
-        "should not throw error",
-    );
-
-    await remove(destDir);
+    try {
+        // if dest directory not exist
+        await rejects(
+            async () => {
+                await move(srcDir, destDir);
+                throw new Error("should not throw error");
+            },
+            Error,
+            "should not throw error",
+        );
+    } finally {
+        if (await existsAsync(destDir)) {
+            await remove(destDir);
+        }
+    }
 });
 
 test(
@@ -53,20 +56,22 @@ test(
     async function () {
         const srcDir = path.join(testdataDir, "move_test_src_2");
         const destDir = path.join(testdataDir, "move_test_dest_2");
-
         await makeDir(srcDir, { recursive: true });
-
-        // if dest directory not exist
-        await rejects(
-            async () => {
-                await move(srcDir, destDir, { overwrite: true });
-                throw new Error("should not throw error");
-            },
-            Error,
-            "should not throw error",
-        );
-
-        await remove(destDir);
+        try {
+            // if dest directory not exist
+            await rejects(
+                async () => {
+                    await move(srcDir, destDir, { overwrite: true });
+                    throw new Error("should not throw error");
+                },
+                Error,
+                "should not throw error",
+            );
+        } finally {
+            if (await existsAsync(destDir)) {
+                await remove(destDir);
+            }
+        }
     },
 );
 

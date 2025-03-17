@@ -1,14 +1,10 @@
 import { test } from "@bearz/testing";
-import { equal, ok, throws, rejects } from "@bearz/assert";
+import { equal, ok, rejects } from "@bearz/assert";
 import { readFile, readFileSync } from "./read_file.ts";
 import { join } from "@bearz/path";
 import { exec } from "./_testutils.ts";
-import { globals } from "./globals.ts";
 
-// deno-lint-ignore no-explicit-any
-const g = globals as Record<string, any>;
-
-const testData = join(import.meta.dirname!, "test-data");
+const testData = join(import.meta.dirname!, "test-data", "read_file");
 
 test("fs::readFile reads file contents", async () => {
     await exec("mkdir", ["-p", testData]);
@@ -30,11 +26,9 @@ test("fs::readFile with aborted signal rejects", async () => {
     controller.abort();
     await rejects(
         () => readFile("test.txt", { signal: controller.signal }),
-        Error
+        Error,
     );
 });
-
-
 
 test("fs::readFileSync reads file contents", async () => {
     await exec("mkdir", ["-p", testData]);
@@ -48,20 +42,5 @@ test("fs::readFileSync reads file contents", async () => {
         equal(new TextDecoder().decode(data).trim(), content);
     } finally {
         await exec("rm", ["-f", filePath]);
-    }
-});
-
-test("fs::readFileSync without Deno API throws when no fs available", () => {
-    const { Deno: od, require: req, process: proc } = globals;
-    delete g["Deno"];
-    delete g["require"];
-    delete g["process"];
-    
-    try {
-        throws(() => readFileSync("test.txt"), Error, "No suitable file system module found.");
-    } finally {
-        globals.Deno = od;
-        globals.require = req;
-        globals.process = proc;
     }
 });

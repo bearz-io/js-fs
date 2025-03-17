@@ -36,15 +36,15 @@ export class SubdirectoryMoveError extends Error {
     }
 }
 
-
 /**
  * Checks if an error indicates that a file or directory was not found.
  * @param err The error to check.
  * @returns A boolean indicating whether the error indicates that the file or directory was not found.
  */
 export function isNotFoundError(err: unknown): boolean {
-    if (err instanceof NotFoundError)
+    if (err instanceof NotFoundError) {
         return true;
+    }
 
     if (globals.Deno && err instanceof globals.Deno.errors.NotFound) {
         return true;
@@ -52,11 +52,11 @@ export function isNotFoundError(err: unknown): boolean {
 
     // deno-lint-ignore no-explicit-any
     if ((err instanceof Error) && (err as any).code === "ENOENT") {
-        return true; 
+        return true;
     }
 
     return false;
-};
+}
 
 /**
  * Checks if an error indicates that a file or directory already exists.
@@ -64,8 +64,9 @@ export function isNotFoundError(err: unknown): boolean {
  * @returns A boolean indicating whether the error indicates that the file or directory already exists.
  */
 export function isAlreadyExistsError(err: unknown): boolean {
-    if (err instanceof AlreadyExistsError)
+    if (err instanceof AlreadyExistsError) {
         return true;
+    }
 
     if (globals.Deno && err instanceof globals.Deno.errors.AlreadyExists) {
         return true;
@@ -76,6 +77,4 @@ export function isAlreadyExistsError(err: unknown): boolean {
         return true;
     }
     return false;
-};
-
-
+}

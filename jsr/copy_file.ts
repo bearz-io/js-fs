@@ -1,8 +1,7 @@
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn : typeof import("node:fs").copyFileSync | undefined;
-let fnAsync : typeof import("node:fs/promises").copyFile | undefined;
-
+let fn: typeof import("node:fs").copyFileSync | undefined;
+let fnAsync: typeof import("node:fs/promises").copyFile | undefined;
 
 /**
  * Copies a file asynchronously.
@@ -40,7 +39,7 @@ export function copyFile(
     }
 
     return fnAsync(from, to);
-};
+}
 
 /**
  * Synchronously copies a file.
@@ -65,7 +64,7 @@ export function copyFileSync(
     from: string | URL,
     to: string | URL,
 ): void {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.copyFileSync(from, to);
     }
 
@@ -77,4 +76,4 @@ export function copyFileSync(
     }
 
     return fn(from, to);
-};
+}

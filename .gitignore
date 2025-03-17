@@ -3,3 +3,4 @@ test_runner.js
 .vite
 .artifacts
 test-data
+test-data/** 

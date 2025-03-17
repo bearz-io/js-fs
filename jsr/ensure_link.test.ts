@@ -12,7 +12,6 @@ import { writeTextFile } from "./write_text_file.ts";
 import { readTextFile } from "./read_text_file.ts";
 import { readFileSync } from "./read_file.ts";
 
-
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");
 
@@ -48,8 +47,8 @@ test("fs::ensureLink() ensures dest links to the src", async function () {
     const testFile = path.join(testDir, "test.txt");
     const linkFile = path.join(testDir, "link.txt");
 
-    await Deno.mkdir(testDir, { recursive: true });
-    await Deno.writeFile(testFile, new Uint8Array());
+    await makeDir(testDir, { recursive: true });
+    await writeFile(testFile, new Uint8Array());
 
     await ensureLink(testFile, linkFile);
 

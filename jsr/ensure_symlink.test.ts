@@ -1,6 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 // TODO(axetroy): Add test for Windows once symlink is implemented for Windows.
-import { test } from "@bearz/testing"
+import { test } from "@bearz/testing";
 import { equal, rejects, throws } from "@bearz/assert";
 import * as path from "@bearz/path";
 import { ensureSymlink, ensureSymlinkSync } from "./ensure_symlink.ts";
@@ -13,7 +13,6 @@ import { symlink, symlinkSync } from "./symlink.ts";
 import { remove, removeSync } from "./remove.ts";
 import { writeFile, writeFileSync } from "./write_file.ts";
 import { writeTextFile, writeTextFileSync } from "./write_text_file.ts";
-
 
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");

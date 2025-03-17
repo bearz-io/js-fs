@@ -1,8 +1,8 @@
 import type { ReadOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn: typeof import('node:fs').readFileSync | undefined = undefined;
-let fnAsync: typeof import('node:fs/promises').readFile | undefined = undefined;
+let fn: typeof import("node:fs").readFileSync | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").readFile | undefined = undefined;
 
 /**
  * Reads the contents of a file as text.
@@ -23,13 +23,17 @@ export function readTextFile(path: string | URL, options?: ReadOptions): Promise
     }
 
     if (options?.signal) {
-        options.signal.throwIfAborted();
+        if (options.signal.aborted) {
+            const e = new Error("The operation was aborted.");
+            e.name = "AbortError";
+            return Promise.reject(e);
+        }
 
-        return fnAsync(path, { encoding: 'utf-8', signal: options.signal });
+        return fnAsync(path, { encoding: "utf-8", signal: options.signal });
     }
 
-    return fnAsync(path, { encoding: 'utf-8' });
-};
+    return fnAsync(path, { encoding: "utf-8" });
+}
 
 /**
  * Synchronously Reads the contents of a file as text.
@@ -48,5 +52,5 @@ export function readTextFileSync(path: string | URL): string {
         }
     }
 
-    return fn(path, { encoding: 'utf-8' });
-};
+    return fn(path, { encoding: "utf-8" });
+}

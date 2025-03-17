@@ -1,5 +1,5 @@
 import { test } from "@bearz/testing";
-import { ok, equal } from "@bearz/assert";
+import { equal, ok } from "@bearz/assert";
 import { makeTempDir, makeTempDirSync } from "./make_temp_dir.ts";
 import { globals } from "./globals.ts";
 
@@ -18,7 +18,6 @@ function exists(path: string): Promise<boolean> {
 
 function existsSync(path: string): boolean {
     try {
-        
         return execSync("test", ["-d", path]) === 0;
     } catch {
         return false;
@@ -59,7 +58,7 @@ test("fs::makeTempDir uses Deno.makeTempDir when available", async () => {
     delete g["Deno"];
     try {
         g.Deno = {
-            makeTempDir: () => Promise.resolve("/fake/temp/dir")
+            makeTempDir: () => Promise.resolve("/fake/temp/dir"),
         };
         const dir = await makeTempDir();
         equal(dir, "/fake/temp/dir");
@@ -81,7 +80,7 @@ test("fs::makeTempDirSync creates directory with prefix", async () => {
     await exec("rm", ["-rf", tempDir]);
 });
 
-test("fs::makeTempDirSync creates directory with suffix",  async () => {
+test("fs::makeTempDirSync creates directory with suffix", async () => {
     const tempDir = makeTempDirSync({ suffix: "-tmp" });
     ok(existsSync(tempDir));
     ok(tempDir.endsWith("-tmp"));
@@ -103,7 +102,7 @@ test("fs::makeTempDirSync uses Deno.makeTempDirSync when available", () => {
     delete g["Deno"];
     try {
         g.Deno = {
-            makeTempDirSync: () => "/fake/temp/dir"
+            makeTempDirSync: () => "/fake/temp/dir",
         };
         const dir = makeTempDirSync();
         equal(dir, "/fake/temp/dir");

@@ -1,12 +1,11 @@
 import type { MakeTempOptions } from "./types.ts";
-import { WIN, globals, loadFs, loadFsAsync } from "./globals.ts";
-import { join, isAbsolute }  from "@bearz/path";
+import { globals, loadFs, loadFsAsync, WIN } from "./globals.ts";
+import { isAbsolute, join } from "@bearz/path";
 import { exists, existsSync } from "./exists.ts";
 import { NotFoundError } from "./errors.ts";
 
-
-let fn: typeof import('node:fs').writeFileSync | undefined = undefined;
-let fnAsync: typeof import('node:fs/promises').writeFile | undefined = undefined;
+let fn: typeof import("node:fs").writeFileSync | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").writeFile | undefined = undefined;
 
 function randomName(prefix?: string, suffix?: string): string {
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -51,9 +50,13 @@ export async function makeTempFile(options?: MakeTempOptions): Promise<string> {
     options.prefix ??= "tmp";
     let dir: string;
     if (!options.dir) {
-        dir = WIN ? (globals.process.env.TEMP ?? "c:\\Temp") : (globals.process.env.TMPDIR ?? "/tmp");
+        dir = WIN
+            ? (globals.process.env.TEMP ?? "c:\\Temp")
+            : (globals.process.env.TMPDIR ?? "/tmp");
     } else if (options.dir && !isAbsolute(options.dir)) {
-        dir = WIN ? (globals.process.env.TEMP ?? "c:\\Temp") : (globals.process.env.TMPDIR ?? "/tmp");
+        dir = WIN
+            ? (globals.process.env.TEMP ?? "c:\\Temp")
+            : (globals.process.env.TMPDIR ?? "/tmp");
         dir = join(dir, options.dir);
     } else {
         dir = options.dir;
@@ -67,7 +70,7 @@ export async function makeTempFile(options?: MakeTempOptions): Promise<string> {
 
     await fnAsync(file, new Uint8Array(0), { mode: 0o644 });
     return file;
-};
+}
 
 /**
  * Creates a temporary file synchronously.
@@ -90,9 +93,13 @@ export function makeTempFileSync(options?: MakeTempOptions): string {
     options.prefix ??= "tmp";
     let dir: string;
     if (!options.dir) {
-        dir = WIN ? (globals.process.env.TEMP ?? "c:\\Temp") : (globals.process.env.TMPDIR ?? "/tmp");
+        dir = WIN
+            ? (globals.process.env.TEMP ?? "c:\\Temp")
+            : (globals.process.env.TMPDIR ?? "/tmp");
     } else if (options.dir && !isAbsolute(options.dir)) {
-        dir = WIN ? (globals.process.env.TEMP ?? "c:\\Temp") : (globals.process.env.TMPDIR ?? "/tmp");
+        dir = WIN
+            ? (globals.process.env.TEMP ?? "c:\\Temp")
+            : (globals.process.env.TMPDIR ?? "/tmp");
         dir = join(dir, options.dir);
     } else {
         dir = options.dir;
@@ -106,4 +113,4 @@ export function makeTempFileSync(options?: MakeTempOptions): string {
 
     fn(file, new Uint8Array(0), { mode: 0o644 });
     return file;
-};
+}

@@ -2,8 +2,14 @@
 import type { FileInfo, FsSupports, OpenOptions, SeekMode } from "./types.ts";
 import { basename } from "@bearz/path";
 import { globals, loadFs } from "./globals.ts";
+import { statSync } from "./stat.ts";
 
 export interface Extras {
+    [key: string]: unknown;
+
+    lockSupported: boolean;
+    seekSupported: boolean;
+
     /**
      * Lock a file descriptor.
      * @param fd The file descriptor
@@ -81,6 +87,9 @@ export interface Extras {
  * ```
  */
 export const ext: Extras = {
+    lockSupported: false,
+    seekSupported: false,
+
     /**
      * Lock a file descriptor.
      * @param fd The file descriptor
@@ -141,7 +150,6 @@ export const ext: Extras = {
         throw new Error("Not implemented");
     },
 };
-
 
 export class FsFile {
     [key: string]: unknown;
@@ -396,11 +404,11 @@ export class FsFile {
     }
 }
 
-let klass : typeof FsFile = FsFile;
+let klass: typeof FsFile = FsFile;
 
-if (Deno) {
-    // deno-lint-ignore no-inner-declarations
-    function translate(whence?: SeekMode): Deno.SeekMode {
+if (globals.Deno) {
+    // deno-lint-ignore no-inner-declarations no-explicit-any
+    function translate(whence?: SeekMode): any {
         whence ??= "current";
         switch (whence) {
             case "start":
@@ -415,13 +423,14 @@ if (Deno) {
     }
 
     klass = class extends FsFile {
-        #file: Deno.FsFile;
+        // deno-lint-ignore no-explicit-any
+        #file: any; // Deno.FsFile
         #path: string;
         #supports: FsSupports[] = [];
-    
+
         constructor(path: string, options: OpenOptions, file: unknown) {
             super(path, options, file);
-            this.#file = file as Deno.FsFile;
+            this.#file = file;
             this.#path = path;
             const supports: FsSupports[] = ["lock", "seek"];
             if (options.write || options.append) {
@@ -438,30 +447,30 @@ if (Deno) {
 
             this.#supports = supports;
         }
-    
+
         [key: string]: unknown;
-    
+
         /**
          * The readable stream for the file.
          */
         override get readable(): ReadableStream<Uint8Array> {
             return this.#file.readable;
         }
-    
+
         /**
          * The writeable stream for the file.
          */
         override get writeable(): WritableStream<Uint8Array> {
             return this.#file.writable;
         }
-    
+
         /**
          * Provides information about the file system support for the file.
          */
         override get supports(): FsSupports[] {
             return this.#supports;
         }
-    
+
         /**
          * Closes the file.
          * @returns A promise that resolves when the file is closed.
@@ -469,14 +478,14 @@ if (Deno) {
         override close(): Promise<void> {
             return Promise.resolve(this.#file.close());
         }
-    
+
         /**
          * Synchronously closes the file.
          */
         override closeSync(): void {
             this.#file.close();
         }
-    
+
         /**
          * Flushes any pending data and metadata operations
          * of the given file stream to disk.
@@ -485,7 +494,7 @@ if (Deno) {
         override flush(): Promise<void> {
             return this.#file.sync();
         }
-    
+
         /**
          * Synchronously flushes any pending data and metadata operations
          * of the given file stream to disk.
@@ -493,7 +502,7 @@ if (Deno) {
         override flushSync(): void {
             return this.#file.syncSync();
         }
-    
+
         /**
          * Flushes any pending data operations of
          * the given file stream to disk.
@@ -502,7 +511,7 @@ if (Deno) {
         override flushData(): Promise<void> {
             return this.#file.syncData();
         }
-    
+
         /**
          * Synchronously flushes any pending data operations of
          * the given file stream to disk.
@@ -511,7 +520,7 @@ if (Deno) {
         override flushDataSync(): void {
             return this.#file.syncDataSync();
         }
-    
+
         /**
          * Acquire an advisory file-system lock for the file.
          * **The current runtime may not support this operation or may require
@@ -523,7 +532,7 @@ if (Deno) {
         override lock(exclusive?: boolean | undefined): Promise<void> {
             return this.#file.lock(exclusive);
         }
-    
+
         /**
          * Synchronously acquire an advisory file-system lock for the file.
          * **The current runtime may not support this operation or may require
@@ -535,7 +544,7 @@ if (Deno) {
         override lockSync(exclusive?: boolean | undefined): void {
             return this.#file.lockSync(exclusive);
         }
-    
+
         /**
          * Synchronously read from the file into an array buffer (`buffer`).
          *
@@ -553,7 +562,7 @@ if (Deno) {
         override readSync(buffer: Uint8Array): number | null {
             return this.#file.readSync(buffer);
         }
-    
+
         /**
          * Read from the file into an array buffer (`buffer`).
          *
@@ -571,7 +580,7 @@ if (Deno) {
         override read(buffer: Uint8Array): Promise<number | null> {
             return this.#file.read(buffer);
         }
-    
+
         /**
          * Seek to the given `offset` under mode given by `whence`. The
          * call resolves to the new position within the resource
@@ -587,7 +596,7 @@ if (Deno) {
         override seek(offset: number | bigint, whence?: SeekMode | undefined): Promise<number> {
             return this.#file.seek(offset, translate(whence));
         }
-    
+
         /**
          * Synchronously seek to the given `offset` under mode given by `whence`. The
          * call resolves to the new position within the resource
@@ -602,14 +611,15 @@ if (Deno) {
         override seekSync(offset: number | bigint, whence?: SeekMode): number {
             return this.#file.seekSync(offset, translate(whence));
         }
-    
+
         /**
          * Gets the file information for the file.
          * @returns A file information object.
          * @throws An error if the file information cannot be retrieved.
          */
         override stat(): Promise<FileInfo> {
-            return this.#file.stat().then((stat) => {
+            // deno-lint-ignore no-explicit-any
+            return this.#file.stat().then((stat: any) => {
                 const p = this.#path;
                 return {
                     isFile: stat.isFile,
@@ -637,7 +647,7 @@ if (Deno) {
                 } as FileInfo;
             });
         }
-    
+
         /**
          * Synchronously gets the file information for the file.
          * @returns A file information object.
@@ -671,7 +681,7 @@ if (Deno) {
                 isFifo: stat.isFifo,
             } as FileInfo;
         }
-    
+
         /**
          * Synchronously write the contents of the array buffer (`buffer`)
          * to the file.
@@ -686,7 +696,7 @@ if (Deno) {
         override writeSync(buffer: Uint8Array): number {
             return this.#file.writeSync(buffer);
         }
-    
+
         /**
          * Synchronously write the contents of the array buffer (`buffer`)
          * to the file.
@@ -701,7 +711,7 @@ if (Deno) {
         override write(buffer: Uint8Array): Promise<number> {
             return this.#file.write(buffer);
         }
-    
+
         /**
          * Release an advisory file-system lock for the file.
          * **The current runtime may not support this operation or may require
@@ -712,7 +722,7 @@ if (Deno) {
         override unlock(): Promise<void> {
             return this.#file.unlock();
         }
-    
+
         /**
          * Release an advisory file-system lock for the file.
          * **The current runtime may not support this operation or may require
@@ -724,435 +734,461 @@ if (Deno) {
         }
     };
 } else if (globals.process) {
+    const fs = loadFs();
 
-     const fs = loadFs();
-    
- 
+    klass = class extends FsFile {
+        #fd: number;
+        #path: string;
+        #supports: FsSupports[] = [];
+        #readable?: ReadableStream<Uint8Array>;
+        #writeable?: WritableStream<Uint8Array>;
 
-     klass = class extends FsFile {
-            #fd: number;
-            #path: string;
-            #supports: FsSupports[] = [];
-            #readable?: ReadableStream<Uint8Array>;
-            #writeable?: WritableStream<Uint8Array>;
-        
-            constructor(path: string, options: OpenOptions, file: unknown) {
-                super(path, options, file);
-                this.#fd = file as number;
-                this.#path = path;
-                const supports: FsSupports[] = ["lock", "seek"];
-                if (options.write || options.append) {
-                    supports.push("write");
-                }
-            
-                if (options.read) {
-                    supports.push("read");
-                }
-            
-                if (options.truncate || options.create) {
-                    supports.push("truncate");
-                }
-                this.#supports = supports;
+        constructor(path: string, options: OpenOptions, file: unknown) {
+            super(path, options, file);
+            this.#fd = file as number;
+            this.#path = path;
+            const supports: FsSupports[] = ["lock", "seek"];
+            if (options.write || options.append) {
+                supports.push("write");
             }
-        
-            /**
-             * The readable stream for the file.
-             */
-            override get readable(): ReadableStream<Uint8Array> {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                const fd = this.#fd;
-                this.#readable ??= new ReadableStream({
-                    start: (controller) => {
-                        while (true) {
-                            const buf = new Uint8Array(1024);
-                            const size = this.readSync(buf);
-                            if (size === null) {
-                                controller.close();
-                                this.closeSync();
-                                break;
+
+            if (options.read) {
+                supports.push("read");
+            }
+
+            if (options.truncate || options.create) {
+                supports.push("truncate");
+            }
+            this.#supports = supports;
+        }
+
+        /**
+         * The readable stream for the file.
+         */
+        override get readable(): ReadableStream<Uint8Array> {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
+            }
+            const fd = this.#fd;
+            this.#readable ??= new ReadableStream({
+                start: (controller) => {
+                    while (true) {
+                        const buf = new Uint8Array(1024);
+                        const size = this.readSync(buf);
+                        if (size === null) {
+                            controller.close();
+                            this.closeSync();
+                            break;
+                        }
+                        controller.enqueue(buf.slice(0, size));
+                    }
+                },
+                cancel() {
+                    fs.closeSync(fd);
+                },
+            });
+
+            return this.#readable;
+        }
+
+        /**
+         * The writeable stream for the file.
+         */
+        override get writeable(): WritableStream<Uint8Array> {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
+            }
+            const fd = this.#fd;
+            this.#writeable ??= new WritableStream({
+                write(chunk, controller) {
+                    return new Promise((resolve) => {
+                        fs.write(fd, chunk, (err) => {
+                            if (err) {
+                                controller.error(err);
+                                return;
                             }
-                            controller.enqueue(buf.slice(0, size));
-                        }
-                    },
-                    cancel() {
-                        fs.closeSync(fd);
-                    },
-                });
-        
-                return this.#readable;
-            }
-        
-            /**
-             * The writeable stream for the file.
-             */
-            override get writeable(): WritableStream<Uint8Array> {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                const fd = this.#fd;
-                this.#writeable ??= new WritableStream({
-                    write(chunk, controller) {
-                        return new Promise((resolve) => {
-                            fs.write(fd, chunk, (err) => {
-                                if (err) {
-                                    controller.error(err);
-                                    return;
-                                }
-        
-                                resolve();
-                            });
+
+                            resolve();
                         });
-                    },
-                    close() {
-                        fs.closeSync(fd);
-                    },
-                });
-        
-                return this.writeable;
-            }
-        
-            /**
-             * Provides information about the file system support for the file.
-             */
-            override get supports(): FsSupports[] {
-                return this.#supports;
-            }
-            /**
-             * Synchronously closes the file.
-             */
-            override closeSync(): void {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                fs.closeSync(this.#fd);
-            }
-        
-            /**
-             * Closes the file.
-             * @returns A promise that resolves when the file is closed.
-             */
-            override close(): Promise<void> {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                return new Promise((resolve, reject) => {
-                    fs.close(this.#fd, (err) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        resolve();
                     });
+                },
+                close() {
+                    fs.closeSync(fd);
+                },
+            });
+
+            return this.writeable;
+        }
+
+        /**
+         * Provides information about the file system support for the file.
+         */
+        override get supports(): FsSupports[] {
+            return this.#supports;
+        }
+        /**
+         * Synchronously closes the file.
+         */
+        override closeSync(): void {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
+            }
+            fs.closeSync(this.#fd);
+        }
+
+        /**
+         * Closes the file.
+         * @returns A promise that resolves when the file is closed.
+         */
+        override close(): Promise<void> {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
+            }
+            return new Promise((resolve, reject) => {
+                fs.close(this.#fd, (err) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    resolve();
                 });
+            });
+        }
+
+        /**
+         * Flushes any pending data and metadata operations
+         * of the given file stream to disk.
+         * @returns A promise that resolves when the data is flushed.
+         */
+        override flush(): Promise<void> {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Flushes any pending data and metadata operations
-             * of the given file stream to disk.
-             * @returns A promise that resolves when the data is flushed.
-             */
-            override flush(): Promise<void> {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                return new Promise((resolve, reject) => {
-                    fs.fsync(this.#fd, (err) => {
-                        if (err) reject(err);
-                        resolve();
-                    });
+            return new Promise((resolve, reject) => {
+                fs.fsync(this.#fd, (err) => {
+                    if (err) reject(err);
+                    resolve();
                 });
+            });
+        }
+
+        /**
+         * Synchronously flushes any pending data and metadata operations
+         * of the given file stream to disk.
+         */
+        override flushSync(): void {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Synchronously flushes any pending data and metadata operations
-             * of the given file stream to disk.
-             */
-            override flushSync(): void {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                fs.fsyncSync(this.#fd);
+            fs.fsyncSync(this.#fd);
+        }
+
+        /**
+         * Flushes any pending data operations of
+         * the given file stream to disk.
+         * @returns A promise that resolves when the data is flushed.
+         */
+        override flushData(): Promise<void> {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Flushes any pending data operations of
-             * the given file stream to disk.
-             * @returns A promise that resolves when the data is flushed.
-             */
-            override flushData(): Promise<void> {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                return new Promise((resolve, reject) => {
-                    fs.fdatasync(this.#fd, (err) => {
-                        if (err) reject(err);
-                        resolve();
-                    });
+            return new Promise((resolve, reject) => {
+                fs.fdatasync(this.#fd, (err) => {
+                    if (err) reject(err);
+                    resolve();
                 });
+            });
+        }
+
+        /**
+         * Synchronously flushes any pending data operations of
+         * the given file stream to disk.
+         * @returns
+         */
+        override flushDataSync(): void {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Synchronously flushes any pending data operations of
-             * the given file stream to disk.
-             * @returns
-             */
-            override flushDataSync(): void {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                return fs.fdatasyncSync(this.#fd);
+            return fs.fdatasyncSync(this.#fd);
+        }
+
+        /**
+         * Acquire an advisory file-system lock for the file.
+         * **The current runtime may not support this operation or may require
+         * implementation of the `lock` and `unlock` methods.**
+         * @param exclusive Acquire an exclusive lock.
+         * @returns A promise that resolves when the lock is acquired.
+         * @throws An error when not impelemented.
+         */
+        override lock(exclusive?: boolean | undefined): Promise<void> {
+            return ext.lockFile(this.#fd, exclusive);
+        }
+
+        /**
+         * Synchronously acquire an advisory file-system lock for the file.
+         * **The current runtime may not support this operation or may require
+         * implementation of the `lock` and `unlock` methods.**
+         * @param exclusive Acquire an exclusive lock.
+         * @returns A promise that resolves when the lock is acquired.
+         * @throws An error when not impelemented.
+         */
+        override lockSync(exclusive?: boolean | undefined): void {
+            return ext.lockFileSync(this.#fd, exclusive);
+        }
+
+        /**
+         * Synchronously read from the file into an array buffer (`buffer`).
+         *
+         * Returns either the number of bytes read during the operation
+         * or EOF (`null`) if there was nothing more to read.
+         *
+         * It is possible for a read to successfully return with `0`
+         * bytes read. This does not indicate EOF.
+         *
+         * It is not guaranteed that the full buffer will be read in
+         * a single call.
+         * @param buffer The buffer to read into.
+         * @returns The number of bytes read or `null` if EOF.
+         */
+        override readSync(buffer: Uint8Array): number | null {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Acquire an advisory file-system lock for the file.
-             * **The current runtime may not support this operation or may require
-             * implementation of the `lock` and `unlock` methods.**
-             * @param exclusive Acquire an exclusive lock.
-             * @returns A promise that resolves when the lock is acquired.
-             * @throws An error when not impelemented.
-             */
-            override lock(exclusive?: boolean | undefined): Promise<void> {
-                return ext.lockFile(this.#fd, exclusive);
+            const v = fs.readSync(this.#fd, buffer);
+            if (v < 1) {
+                return null;
             }
-        
-            /**
-             * Synchronously acquire an advisory file-system lock for the file.
-             * **The current runtime may not support this operation or may require
-             * implementation of the `lock` and `unlock` methods.**
-             * @param exclusive Acquire an exclusive lock.
-             * @returns A promise that resolves when the lock is acquired.
-             * @throws An error when not impelemented.
-             */
-            override lockSync(exclusive?: boolean | undefined): void {
-                return ext.lockFileSync(this.#fd, exclusive);
+
+            return v;
+        }
+
+        /**
+         * Read from the file into an array buffer (`buffer`).
+         *
+         * Returns either the number of bytes read during the operation
+         * or EOF (`null`) if there was nothing more to read.
+         *
+         * It is possible for a read to successfully return with `0`
+         * bytes read. This does not indicate EOF.
+         *
+         * It is not guaranteed that the full buffer will be read in
+         * a single call.
+         * @param buffer The buffer to read into.
+         * @returns A promise of the number of bytes read or `null` if EOF.
+         */
+        override read(p: Uint8Array): Promise<number | null> {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Synchronously read from the file into an array buffer (`buffer`).
-             *
-             * Returns either the number of bytes read during the operation
-             * or EOF (`null`) if there was nothing more to read.
-             *
-             * It is possible for a read to successfully return with `0`
-             * bytes read. This does not indicate EOF.
-             *
-             * It is not guaranteed that the full buffer will be read in
-             * a single call.
-             * @param buffer The buffer to read into.
-             * @returns The number of bytes read or `null` if EOF.
-             */
-            override readSync(buffer: Uint8Array): number | null {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                const v = fs.readSync(this.#fd, buffer);
-                if (v < 1) {
-                    return null;
-                }
-        
-                return v;
-            }
-        
-            /**
-             * Read from the file into an array buffer (`buffer`).
-             *
-             * Returns either the number of bytes read during the operation
-             * or EOF (`null`) if there was nothing more to read.
-             *
-             * It is possible for a read to successfully return with `0`
-             * bytes read. This does not indicate EOF.
-             *
-             * It is not guaranteed that the full buffer will be read in
-             * a single call.
-             * @param buffer The buffer to read into.
-             * @returns A promise of the number of bytes read or `null` if EOF.
-             */
-            override read(p: Uint8Array): Promise<number | null> {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                return new Promise((resolve, reject) => {
-                    fs.read(this.#fd, p, 0, p.length, null, (err, size) => {
-                        if (err) {
-                            reject(err);
-                            return;
-                        }
-        
-                        resolve(size);
-                    });
+            return new Promise((resolve, reject) => {
+                fs.read(this.#fd, p, 0, p.length, null, (err, size) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
+                    resolve(size);
                 });
+            });
+        }
+
+        /**
+         * Synchronously seek to the given `offset` under mode given by `whence`. The
+         * call resolves to the new position within the resource
+         * (bytes from the start).
+         *
+         * **The runtime may not support this operation or may require
+         * implementation of the `seek` method.**
+         * @param offset The offset to seek to.
+         * @param whence The `start`, `current`, or `end` of the steam.
+         * @returns The new position within the resource.
+         */
+        override seekSync(offset: number | bigint, whence?: SeekMode | undefined): number {
+            return ext.seekFileSync(this.#fd, offset, whence);
+        }
+
+        /**
+         * Seek to the given `offset` under mode given by `whence`. The
+         * call resolves to the new position within the resource
+         * (bytes from the start).
+         *
+         * **The runtime may not support this operation or may require
+         * implementation of the `seek` method.**
+         * @param offset The offset to seek to.
+         * @param whence The `start`, `current`, or `end` of the steam.
+         * @returns The new position within the resource.
+         * @throws An error when not impelemented.
+         */
+        override seek(offset: number | bigint, whence?: SeekMode | undefined): Promise<number> {
+            return ext.seekFile(this.#fd, offset, whence);
+        }
+
+        /**
+         * Gets the file information for the file.
+         * @returns A file information object.
+         * @throws An error if the file information cannot be retrieved.
+         */
+        override stat(): Promise<FileInfo> {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Synchronously seek to the given `offset` under mode given by `whence`. The
-             * call resolves to the new position within the resource
-             * (bytes from the start).
-             *
-             * **The runtime may not support this operation or may require
-             * implementation of the `seek` method.**
-             * @param offset The offset to seek to.
-             * @param whence The `start`, `current`, or `end` of the steam.
-             * @returns The new position within the resource.
-             */
-            override seekSync(offset: number | bigint, whence?: SeekMode | undefined): number {
-                return ext.seekFileSync(this.#fd, offset, whence);
-            }
-        
-            /**
-             * Seek to the given `offset` under mode given by `whence`. The
-             * call resolves to the new position within the resource
-             * (bytes from the start).
-             *
-             * **The runtime may not support this operation or may require
-             * implementation of the `seek` method.**
-             * @param offset The offset to seek to.
-             * @param whence The `start`, `current`, or `end` of the steam.
-             * @returns The new position within the resource.
-             * @throws An error when not impelemented.
-             */
-            override seek(offset: number | bigint, whence?: SeekMode | undefined): Promise<number> {
-                return ext.seekFile(this.#fd, offset, whence);
-            }
-        
-            /**
-             * Gets the file information for the file.
-             * @returns A file information object.
-             * @throws An error if the file information cannot be retrieved.
-             */
-            override stat(): Promise<FileInfo> {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                return new Promise((resolve, reject) => {
-                    fs.fstat(this.#fd, (err, stat) => {
-                        if (err) {
-                            reject(err);
-                            return;
-                        }
-        
-                        const p = this.#path;
-                        resolve({
-                            isFile: stat.isFile(),
-                            isDirectory: stat.isDirectory(),
-                            isSymlink: stat.isSymbolicLink(),
-                            name: basename(p),
-                            path: p,
-                            size: stat.size,
-                            birthtime: stat.birthtime,
-                            mtime: stat.mtime,
-                            atime: stat.atime,
-                            mode: stat.mode,
-                            uid: stat.uid,
-                            gid: stat.gid,
-                            dev: stat.dev,
-                            blksize: stat.blksize,
-                            ino: stat.ino,
-                            nlink: stat.nlink,
-                            rdev: stat.rdev,
-                            blocks: stat.blocks,
-                            isBlockDevice: stat.isBlockDevice(),
-                            isCharDevice: stat.isCharacterDevice(),
-                            isSocket: stat.isSocket(),
-                            isFifo: stat.isFIFO(),
-                        } as FileInfo);
-                    });
+            return new Promise((resolve, reject) => {
+                fs.fstat(this.#fd, (err, stat) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
+                    const p = this.#path;
+                    resolve({
+                        isFile: stat.isFile(),
+                        isDirectory: stat.isDirectory(),
+                        isSymlink: stat.isSymbolicLink(),
+                        name: basename(p),
+                        path: p,
+                        size: stat.size,
+                        birthtime: stat.birthtime,
+                        mtime: stat.mtime,
+                        atime: stat.atime,
+                        mode: stat.mode,
+                        uid: stat.uid,
+                        gid: stat.gid,
+                        dev: stat.dev,
+                        blksize: stat.blksize,
+                        ino: stat.ino,
+                        nlink: stat.nlink,
+                        rdev: stat.rdev,
+                        blocks: stat.blocks,
+                        isBlockDevice: stat.isBlockDevice(),
+                        isCharDevice: stat.isCharacterDevice(),
+                        isSocket: stat.isSocket(),
+                        isFifo: stat.isFIFO(),
+                    } as FileInfo);
                 });
+            });
+        }
+
+        /**
+         * Synchronously gets the file information for the file.
+         * @returns A file information object.
+         * @throws An error if the file information cannot be retrieved.
+         */
+        override statSync(): FileInfo {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Synchronously gets the file information for the file.
-             * @returns A file information object.
-             * @throws An error if the file information cannot be retrieved.
-             */
-            override statSync(): FileInfo {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                const p = this.#path;
-                const stat = fs.fstatSync(this.#fd);
-                return {
-                    isFile: stat.isFile(),
-                    isDirectory: stat.isDirectory(),
-                    isSymlink: stat.isSymbolicLink(),
-                    name: basename(p),
-                    path: p,
-                    size: stat.size,
-                    birthtime: stat.birthtime,
-                    mtime: stat.mtime,
-                    atime: stat.atime,
-                    mode: stat.mode,
-                    uid: stat.uid,
-                    gid: stat.gid,
-                    dev: stat.dev,
-                    blksize: stat.blksize,
-                    ino: stat.ino,
-                    nlink: stat.nlink,
-                    rdev: stat.rdev,
-                    blocks: stat.blocks,
-                    isBlockDevice: stat.isBlockDevice(),
-                    isCharDevice: stat.isCharacterDevice(),
-                    isSocket: stat.isSocket(),
-                    isFifo: stat.isFIFO(),
-                } as FileInfo;
+            const p = this.#path;
+            const stat = fs.fstatSync(this.#fd);
+            return {
+                isFile: stat.isFile(),
+                isDirectory: stat.isDirectory(),
+                isSymlink: stat.isSymbolicLink(),
+                name: basename(p),
+                path: p,
+                size: stat.size,
+                birthtime: stat.birthtime,
+                mtime: stat.mtime,
+                atime: stat.atime,
+                mode: stat.mode,
+                uid: stat.uid,
+                gid: stat.gid,
+                dev: stat.dev,
+                blksize: stat.blksize,
+                ino: stat.ino,
+                nlink: stat.nlink,
+                rdev: stat.rdev,
+                blocks: stat.blocks,
+                isBlockDevice: stat.isBlockDevice(),
+                isCharDevice: stat.isCharacterDevice(),
+                isSocket: stat.isSocket(),
+                isFifo: stat.isFIFO(),
+            } as FileInfo;
+        }
+
+        /**
+         * Synchronously write the contents of the array buffer (`buffer`)
+         * to the file.
+         *
+         * Returns the number of bytes written.
+         *
+         * **It is not guaranteed that the full buffer
+         * will be written in a single call.**
+         * @param buffer The buffer to write.
+         * @returns A promise of the number of bytes written.
+         */
+        override writeSync(buffer: Uint8Array): number {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Synchronously write the contents of the array buffer (`buffer`)
-             * to the file.
-             *
-             * Returns the number of bytes written.
-             *
-             * **It is not guaranteed that the full buffer
-             * will be written in a single call.**
-             * @param buffer The buffer to write.
-             * @returns A promise of the number of bytes written.
-             */
-            override writeSync(buffer: Uint8Array): number {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                return fs.writeSync(this.#fd, buffer);
+            return fs.writeSync(this.#fd, buffer);
+        }
+
+        /**
+         * Synchronously write the contents of the array buffer (`buffer`)
+         * to the file.
+         *
+         * Returns the number of bytes written.
+         *
+         * **It is not guaranteed that the full buffer
+         * will be written in a single call.**
+         * @param buffer The buffer to write.
+         * @returns A promise of the number of bytes written.
+         */
+        override write(p: Uint8Array): Promise<number> {
+            if (!fs) {
+                throw new Error("No suitable file system module found.");
             }
-        
-            /**
-             * Synchronously write the contents of the array buffer (`buffer`)
-             * to the file.
-             *
-             * Returns the number of bytes written.
-             *
-             * **It is not guaranteed that the full buffer
-             * will be written in a single call.**
-             * @param buffer The buffer to write.
-             * @returns A promise of the number of bytes written.
-             */
-            override write(p: Uint8Array): Promise<number> {
-                if (!fs)
-                    throw new Error("No suitable file system module found.");
-                return new Promise((resolve, reject) => {
-                    fs.write(this.#fd, p, (err, size) => {
-                        if (err) {
-                            reject(err);
-                            return;
-                        }
-        
-                        resolve(size);
-                    });
+            return new Promise((resolve, reject) => {
+                fs.write(this.#fd, p, (err, size) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
+                    resolve(size);
                 });
-            }
-        
-            /**
-             * Release an advisory file-system lock for the file.
-             * **The current runtime may not support this operation or may require
-             * implementation of the `lock` and `unlock` methods.**
-             * @returns A promise that resolves when the lock is released.
-             * @throws An error if not implemented.
-             */
-            override unlock(): Promise<void> {
-                return ext.unlockFile(this.#fd);
-            }
-        
-            /**
-             * Release an advisory file-system lock for the file.
-             * **The current runtime may not support this operation or may require
-             * implementation of the `lock` and `unlock` methods.**
-             * @throws An error if not implemented.
-             */
-            override unlockSync(): void {
-                return ext.unlockFileSync(this.#fd);
-            }
-        };
+            });
+        }
+
+        /**
+         * Release an advisory file-system lock for the file.
+         * **The current runtime may not support this operation or may require
+         * implementation of the `lock` and `unlock` methods.**
+         * @returns A promise that resolves when the lock is released.
+         * @throws An error if not implemented.
+         */
+        override unlock(): Promise<void> {
+            return ext.unlockFile(this.#fd);
+        }
+
+        /**
+         * Release an advisory file-system lock for the file.
+         * **The current runtime may not support this operation or may require
+         * implementation of the `lock` and `unlock` methods.**
+         * @throws An error if not implemented.
+         */
+        override unlockSync(): void {
+            return ext.unlockFileSync(this.#fd);
+        }
+
+        /**
+         * Synchronously dispose of the file.
+         */
+        override [Symbol.dispose](): void {
+            return this.closeSync();
+        }
+
+        /**
+         * Dispose of the file.
+         * @returns A promise that resolves when the file is disposed.
+         */
+        override [Symbol.asyncDispose](): Promise<void> {
+            return this.close();
+        }
+    };
 }
 
-let fn : typeof import("node:fs").openSync | undefined = undefined;
-let fnAsync : typeof import("node:fs").open | undefined = undefined;
+let fn: typeof import("node:fs").openSync | undefined = undefined;
+let fnAsync: typeof import("node:fs").open | undefined = undefined;
 
 /**
  * Open a file and resolve to an instance of {@linkcode FsFile}. The
@@ -1185,9 +1221,9 @@ let fnAsync : typeof import("node:fs").open | undefined = undefined;
  */
 export async function open(path: string | URL, options: OpenOptions): Promise<FsFile> {
     if (globals.Deno) {
-        const file = await Deno.open(path, options);
+        const file = await globals.Deno.open(path, options);
         const p = path instanceof URL ? path.toString() : path;
-    
+
         return new klass(p, options, file);
     }
 
@@ -1199,14 +1235,14 @@ export async function open(path: string | URL, options: OpenOptions): Promise<Fs
     }
 
     let flags = "r";
-    if (options.read) {
-        if (options.write) {
-            flags = "w";
-        } else if (!options.append) {
-            flags = "a";
-        } else {
-            flags = "r";
-        }
+    if (options.write) {
+        flags = "w";
+    } else if (options.append) {
+        flags = "a";
+    } else if (options.read) {
+        flags = "r";
+    } else {
+        flags = "r";
     }
 
     if (options.createNew && (options.write || options.append)) {
@@ -1214,7 +1250,9 @@ export async function open(path: string | URL, options: OpenOptions): Promise<Fs
     } else if ((options.create || options.truncate) && (options.write || options.append)) {
         flags += "+";
     }
-   
+
+    console.log(path, flags, options.mode);
+
     return new Promise<FsFile>((resolve, reject) => {
         fnAsync!(path, flags, options.mode, (err, fd) => {
             if (err) {
@@ -1225,7 +1263,7 @@ export async function open(path: string | URL, options: OpenOptions): Promise<Fs
             resolve(new klass(p, options, fd));
         });
     });
-};
+}
 
 /**
  * Synchronously open a file and return an instance of
@@ -1258,7 +1296,7 @@ export async function open(path: string | URL, options: OpenOptions): Promise<Fs
  */
 export function openSync(path: string | URL, options: OpenOptions): FsFile {
     if (globals.Deno) {
-        const file = Deno.openSync(path, options);
+        const file = globals.Deno.openSync(path, options);
         const p = path instanceof URL ? path.toString() : path;
         return new klass(p, options, file);
     }
@@ -1271,14 +1309,14 @@ export function openSync(path: string | URL, options: OpenOptions): FsFile {
     }
 
     let flags = "r";
-    if (options.read) {
-        if (options.write) {
-            flags = "w";
-        } else if (!options.append) {
-            flags = "a";
-        } else {
-            flags = "r";
-        }
+    if (options.write) {
+        flags = "w";
+    } else if (options.append) {
+        flags = "a";
+    } else if (options.read) {
+        flags = "r";
+    } else {
+        flags = "r";
     }
 
     if (options.createNew && (options.write || options.append)) {
@@ -1287,7 +1325,16 @@ export function openSync(path: string | URL, options: OpenOptions): FsFile {
         flags += "+";
     }
 
+    console.log(path, flags, options.mode);
+
+    // if this throws, the file does not exist
+    // keeps the functionality in line with Deno
+    if (!options.create) {
+        statSync(path);
+    }
+
     const fd = fn(path, flags, options.mode);
+
     const p = path instanceof URL ? path.toString() : path;
     return new klass(p, options, fd);
-};
+}

@@ -1,7 +1,7 @@
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn: typeof import('node:fs').utimesSync | undefined;
-let fnAsync: typeof  import('node:fs/promises').utimes | undefined;
+let fn: typeof import("node:fs").utimesSync | undefined;
+let fnAsync: typeof import("node:fs/promises").utimes | undefined;
 
 /**
  * Changes the access time and modification time of a file or directory.
@@ -27,7 +27,7 @@ export function utime(
     }
 
     return fnAsync(path, atime, mtime);
-};
+}
 
 /**
  * Synchronously changes the access time and modification time of a file or directory.
@@ -52,4 +52,4 @@ export function utimeSync(
     }
 
     fn(path, atime, mtime);
-};
+}

@@ -1,4 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+import { test } from "@bearz/testing";
 import { equal, instanceOf, stringIncludes } from "@bearz/assert";
 import * as path from "@bearz/path";
 import { exists, existsSync } from "./exists.ts";
@@ -8,8 +9,6 @@ import { writeFile, writeFileSync } from "./write_file.ts";
 import { remove, removeSync } from "./remove.ts";
 import { symlink, symlinkSync } from "./symlink.ts";
 import { WIN } from "./globals.ts";
-
-const test = Deno.test;
 
 test("fs::exists() returns false for a non-existent path", async function () {
     const tempDirPath = await makeTempDir();
@@ -32,7 +31,7 @@ test("fs::existsSync() returns false for a non-existent path", function () {
 test("fs::exists() returns true for an existing file", async function () {
     const tempDirPath = await makeTempDir();
     const tempFilePath = path.join(tempDirPath, "0.ts");
-    writeFile(tempFilePath, new Uint8Array());
+    writeFile(tempFilePath, new Uint8Array([0]));
     try {
         equal(await exists(tempFilePath), true);
         equal(await exists(tempFilePath, {}), true);

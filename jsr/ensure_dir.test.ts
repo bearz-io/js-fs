@@ -8,8 +8,7 @@ import { lstat, lstatSync } from "./lstat.ts";
 import { makeDir, makeDirSync } from "./make_dir.ts";
 import { remove, removeSync } from "./remove.ts";
 import { stat, statSync } from "./stat.ts";
-import { globals } from "./globals.ts"
-
+import { globals } from "./globals.ts";
 
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata", "ensure_dir");

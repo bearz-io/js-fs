@@ -1,8 +1,10 @@
 import type { RemoveOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn: typeof import('node:fs').rmSync | undefined = undefined;
-let fnAsync: typeof import('node:fs/promises').rm | undefined = undefined;
+let fn: typeof import("node:fs").rmSync | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").rm | undefined = undefined;
+let rmDir: typeof import("node:fs").rmdirSync | undefined = undefined;
+let rmDirAsync: typeof import("node:fs/promises").rmdir | undefined = undefined;
 
 /**
  * Removes a file or directory.
@@ -25,8 +27,31 @@ export function remove(
         }
     }
 
-    return fnAsync(path, options);
-};
+    return fnAsync(path, { ...options }).catch((err) => {
+        if ((err as Error & { code: string }).code === "ERR_FS_EISDIR") {
+            if (!rmDirAsync) {
+                rmDirAsync = loadFsAsync()?.rmdir;
+                if (!rmDirAsync) {
+                    return Promise.reject(new Error("No suitable file system module found."));
+                }
+            }
+
+            return rmDirAsync(path, { ...options });
+        } else if (globals.Bun && (err as Error & { code: string }).code === "EFAULT") {
+            // Bun specific error handling
+            if (!rmDirAsync) {
+                rmDirAsync = loadFsAsync()?.rmdir;
+                if (!rmDirAsync) {
+                    return Promise.reject(new Error("No suitable file system module found."));
+                }
+            }
+
+            return rmDirAsync(path, { ...options });
+        } else {
+            return Promise.reject(err);
+        }
+    });
+}
 
 /**
  * Synchronously removes a file or directory.
@@ -45,5 +70,30 @@ export function removeSync(path: string | URL, options?: RemoveOptions): void {
         }
     }
 
-    fn(path, options);
-};
+    try {
+        fn(path, { ...options });
+    } catch (err) {
+        if ((err as Error & { code: string }).code === "ERR_FS_EISDIR") {
+            if (!rmDir) {
+                rmDir = loadFs()?.rmdirSync;
+                if (!rmDir) {
+                    throw new Error("No suitable file system module found.");
+                }
+            }
+
+            rmDir(path, { ...options });
+        } else if (globals.Bun && (err as Error & { code: string }).code === "EFAULT") {
+            // Bun specific error handling
+            if (!rmDir) {
+                rmDir = loadFs()?.rmdirSync;
+                if (!rmDir) {
+                    throw new Error("No suitable file system module found.");
+                }
+            }
+
+            rmDir(path, { ...options });
+        } else {
+            throw err;
+        }
+    }
+}

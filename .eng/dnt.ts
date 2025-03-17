@@ -1,5 +1,6 @@
 import { dirname, fromFileUrl } from "jsr:@std/path@1";
 import { build, emptyDir, type EntryPoint } from "jsr:@deno/dnt";
+import { copy } from "jsr:@std/fs@1/copy";
 
 const __dirname = dirname(fromFileUrl(import.meta.url));
 const pwd = dirname(__dirname);
@@ -17,7 +18,7 @@ if (url.startsWith("git@")) {
     url = url.replace(":", "/").replace("git@", "https://");
 }
 const bugsUrl = url.replace(".git", "/discussions");
-await emptyDir("./npm");
+await emptyDir("../npm");
 
 interface DenoJson {
     name: string;
@@ -38,7 +39,9 @@ for (const key of Object.keys(denoJson.exports)) {
     }
 }
 
-const deps: Record<string, string> = {};
+const deps: Record<string, string> = {
+    "@bearz/path": "^0.0.0",
+};
 const devDeps: Record<string, string> = {
     "@types/node": "^22.13.4",
     "@bearz/testing": "^0.0.0",
@@ -54,7 +57,7 @@ await build({
     scriptModule: false,
     skipSourceOutput: true,
     compilerOptions: {
-        "lib": ["ES2023.Collection", "ES2023"],
+        "lib": ["ES2023.Collection", "ES2023", "ES2015.Iterable"],
         "target": "ES2023",
         "skipLibCheck": true,
     },
@@ -94,6 +97,8 @@ await build({
         Deno.copyFileSync(`${pwd}/LICENSE.md`, `${pwd}/npm/LICENSE.md`);
         Deno.copyFileSync(`${pwd}/README.md`, `${pwd}/npm/README.md`);
         await import("./replace-dnt-shim.ts");
+
+        await copy("./testdata", "../npm/esm/testdata");
     },
 });
 

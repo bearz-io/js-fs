@@ -12,7 +12,7 @@ test("fs::uid returns number when Deno.uid exists", () => {
     delete g["process"];
     try {
         g.Deno = {
-            uid: () => 1000
+            uid: () => 1000,
         };
         equal(uid(), 1000);
     } finally {
@@ -27,7 +27,7 @@ test("fs::uid returns number when process.getuid exists", () => {
     delete g["process"];
     try {
         g.process = {
-            getuid: () => 1000
+            getuid: () => 1000,
         };
         equal(uid(), 1000);
     } finally {
@@ -42,7 +42,7 @@ test("fs::uid returns null when process.getuid returns -1", () => {
     delete g["process"];
     try {
         g.process = {
-            getuid: () => -1
+            getuid: () => -1,
         };
         equal(uid(), null);
     } finally {
@@ -57,7 +57,7 @@ test("fs::uid returns null when process.getuid returns undefined", () => {
     delete g["process"];
     try {
         g.process = {
-            getuid: () => undefined
+            getuid: () => undefined,
         };
         equal(uid(), null);
     } finally {

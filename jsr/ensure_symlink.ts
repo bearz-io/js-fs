@@ -6,7 +6,7 @@ import { getFileInfoType, toPathString } from "./utils.ts";
 import type { SymlinkOptions } from "./types.ts";
 import { AlreadyExistsError, isAlreadyExistsError } from "./errors.ts";
 import { lstat, lstatSync } from "./lstat.ts";
-import { readLink, readLinkSync  } from "./read_link.ts";
+import { readLink, readLinkSync } from "./read_link.ts";
 import { symlink, symlinkSync } from "./symlink.ts";
 import { WIN } from "./globals.ts";
 
@@ -60,9 +60,6 @@ export async function ensureSymlink(
         await symlink(target, linkName, options);
     } catch (error) {
         if (!(isAlreadyExistsError(error))) {
-            console.log("### throwing error ####");
-            console.log(error);
-            console.log(error instanceof Deno.errors.AlreadyExists);
             throw error;
         }
         const linkStatInfo = await lstat(linkName);

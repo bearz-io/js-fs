@@ -1,8 +1,8 @@
-import { DENO, globals, loadFs, loadFsAsync } from "./globals.ts";
+import { globals, loadFs, loadFsAsync } from "./globals.ts";
 import type { CreateDirectoryOptions } from "./types.ts";
 
-let fn : typeof import("node:fs").mkdirSync | undefined;
-let fnAsync : typeof import("node:fs/promises").mkdir | undefined;
+let fn: typeof import("node:fs").mkdirSync | undefined;
+let fnAsync: typeof import("node:fs/promises").mkdir | undefined;
 
 /**
  * Creates a directory.
@@ -14,10 +14,10 @@ export async function makeDir(
     path: string | URL,
     options?: CreateDirectoryOptions | undefined,
 ): Promise<void> {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.mkdir(path, options);
     }
-    
+
     if (fnAsync) {
         await fnAsync(path, options);
         return;
@@ -31,7 +31,7 @@ export async function makeDir(
     }
 
     throw new Error("No suitable file system module found.");
-};
+}
 
 /**
  * Synchronously creates a directory.
@@ -42,7 +42,7 @@ export function makeDirSync(
     path: string | URL,
     options?: CreateDirectoryOptions | undefined,
 ): void {
-    if (DENO) {
+    if (globals.Deno) {
         return globals.Deno.mkdirSync(path, options);
     }
 
@@ -59,4 +59,4 @@ export function makeDirSync(
     }
 
     throw new Error("No suitable file system module found.");
-};
+}

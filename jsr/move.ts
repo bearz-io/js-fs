@@ -4,7 +4,7 @@ import { remove, removeSync } from "./remove.ts";
 import { rename, renameSync } from "./rename.ts";
 import { stat, statSync } from "./stat.ts";
 import { isSamePath, isSubdir } from "./utils.ts";
-import { AlreadyExistsError, SubdirectoryMoveError, isNotFoundError } from "./errors.ts";
+import { AlreadyExistsError, isNotFoundError, SubdirectoryMoveError } from "./errors.ts";
 
 const EXISTS_ERROR = new AlreadyExistsError("dest already exists.");
 

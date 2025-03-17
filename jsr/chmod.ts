@@ -1,7 +1,7 @@
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn : typeof import("node:fs").chmodSync | undefined;
-let fnAsync : typeof import("node:fs/promises").chmod | undefined;
+let fn: typeof import("node:fs").chmodSync | undefined;
+let fnAsync: typeof import("node:fs/promises").chmod | undefined;
 
 /**
  * Changes the permissions of a file or directory asynchronously.
@@ -12,19 +12,19 @@ let fnAsync : typeof import("node:fs/promises").chmod | undefined;
  * @example
  * ```ts
  * import { chmod } from "@bearz/fs/chmod";
- * 
+ *
  * async function changePermissions() {
  *     try {
  *         await chmod("example.txt", 0o755);
  *         console.log("Permissions changed successfully.");
- *     } catch (error) {        
+ *     } catch (error) {
  *         console.error("Error changing permissions:", error);
  *     }
  * }
  * await changePermissions();
  * ```
  */
-export function chmod(path: string | URL, mode: number) : Promise<void> {
+export function chmod(path: string | URL, mode: number): Promise<void> {
     if (globals.Deno) {
         return globals.Deno.chmod(path, mode);
     }
@@ -47,7 +47,7 @@ export function chmod(path: string | URL, mode: number) : Promise<void> {
  * @example
  * ```ts
  * import { chmodSync } from "@bearz/fs/chmod";
- * 
+ *
  * function changePermissions() {
  *     try {
  *        chmodSync("example.txt", 0o755);
@@ -59,11 +59,11 @@ export function chmod(path: string | URL, mode: number) : Promise<void> {
  * changePermissions();
  * ```
  */
-export function chmodSync(path: string | URL, mode: number) : void {
+export function chmodSync(path: string | URL, mode: number): void {
     if (globals.Deno) {
         return globals.Deno.chmodSync(path, mode);
     }
- 
+
     if (!fn) {
         fn = loadFs()?.chmodSync;
         if (!fn) {

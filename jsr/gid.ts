@@ -18,11 +18,12 @@ export function gid(): number | null {
 
     if (globals.process && globals.process.getgid) {
         const gid = globals.process.getgid();
-        if (gid === undefined || gid === -1)
+        if (gid === undefined || gid === -1) {
             return null;
-        
+        }
+
         return gid;
     }
 
     return null;
-};
+}

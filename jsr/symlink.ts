@@ -1,9 +1,8 @@
 import type { SymlinkOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn: typeof import('node:fs').symlinkSync | undefined = undefined;
-let fnAsync: typeof import('node:fs/promises').symlink | undefined = undefined;
-
+let fn: typeof import("node:fs").symlinkSync | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").symlink | undefined = undefined;
 
 /**
  * Creates a symbolic link.
@@ -29,7 +28,7 @@ export function symlink(
     }
 
     return fnAsync(target, path, options?.type);
-};
+}
 
 /**
  * Synchronously creates a symbolic link.
@@ -54,4 +53,4 @@ export function symlinkSync(
     }
 
     fn(target, path, options?.type);
-};
+}

@@ -2,10 +2,7 @@ import type { ExistsOptions } from "./types.ts";
 import { stat, statSync } from "./stat.ts";
 import { uid } from "./uid.ts";
 import { gid } from "./gid.ts";
-import { WIN } from "./globals.ts";
-
-// deno-lint-ignore no-explicit-any
-const g = globalThis as any;
+import { globals, WIN } from "./globals.ts";
 
 /**
  * Asynchronously test whether or not the given path exists by checking with
@@ -124,7 +121,7 @@ export async function exists(
         }
         return true;
     } catch (error) {
-        if (g.process && error instanceof Error) {
+        if (globals.process && error instanceof Error) {
             const { code } = error as unknown as { code: string };
 
             if (code === "ENOENT") {
@@ -138,13 +135,16 @@ export async function exists(
             }
         }
 
-        if (g.Deno) {
-            if (error instanceof g.Deno.errors.NotFound) {
+        if (globals.Deno) {
+            if (error instanceof globals.Deno.errors.NotFound) {
                 return false;
             }
 
-            if (error instanceof g.Deno.errors.PermissionDenied) {
-                if ((await g.Deno.permissions.query({ name: "read", path })).state === "granted") {
+            if (error instanceof globals.Deno.errors.PermissionDenied) {
+                if (
+                    (await globals.Deno.permissions.query({ name: "read", path })).state ===
+                        "granted"
+                ) {
                     // --allow-read not missing
                     return !options?.isReadable; // PermissionDenied was raised by file system, so the item exists, but can't be read
                 }
@@ -269,7 +269,7 @@ export function existsSync(
         }
         return true;
     } catch (error) {
-        if (g.process && error instanceof Error) {
+        if (globals.process && error instanceof Error) {
             const { code } = error as unknown as { code: string };
 
             if (code === "ENOENT") {
@@ -282,13 +282,13 @@ export function existsSync(
                 return !options?.isReadable;
             }
         }
-        if (g.Deno) {
-            if (error instanceof Deno.errors.NotFound) {
+        if (globals.Deno) {
+            if (error instanceof globals.Deno.errors.NotFound) {
                 return false;
             }
-            if (error instanceof Deno.errors.PermissionDenied) {
+            if (error instanceof globals.Deno.errors.PermissionDenied) {
                 if (
-                    Deno.permissions.querySync({ name: "read", path }).state === "granted"
+                    globals.Deno.permissions.querySync({ name: "read", path }).state === "granted"
                 ) {
                     // --allow-read not missing
                     return !options?.isReadable; // PermissionDenied was raised by file system, so the item exists, but can't be read

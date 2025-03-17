@@ -1,21 +1,22 @@
 import { test } from "@bearz/testing";
-import { equal, ok, throws, rejects } from "@bearz/assert";
-import { open, openSync } from "./open.ts";
+import { equal, ok, rejects, throws } from "@bearz/assert";
+import { ext, open, openSync } from "./open.ts";
 import { join } from "@bearz/path";
 import { exec, execSync, output, outputSync } from "./_testutils.ts";
+import { globals } from "./globals.ts";
 
 const testData = join(import.meta.dirname!, "test-data");
 
 test("fs::open opens file with read access", async () => {
     await exec("mkdir", ["-p", testData]);
-    const filePath = join(testData, "read.txt");
+    const filePath = join(testData, "read1.txt");
     const content = "test content";
 
     try {
         await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
         using file = await open(filePath, { read: true });
         ok(file.supports.includes("read"));
-        
+
         const buffer = new Uint8Array(100);
         const bytesRead = await file.read(buffer);
         ok(bytesRead !== null);
@@ -34,7 +35,7 @@ test("fs::open opens file with write access", async () => {
     try {
         using file = await open(filePath, { write: true, create: true });
         ok(file.supports.includes("write"));
-        
+
         const buffer = new TextEncoder().encode(content);
         const bytesWritten = await file.write(buffer);
         equal(bytesWritten, buffer.length);
@@ -55,7 +56,7 @@ test("fs::openSync opens file with read access", () => {
         execSync("bash", ["-c", `echo "${content}" > ${filePath}`]);
         using file = openSync(filePath, { read: true });
         ok(file.supports.includes("read"));
-        
+
         const buffer = new Uint8Array(100);
         const bytesRead = file.readSync(buffer);
         ok(bytesRead !== null);
@@ -74,7 +75,7 @@ test("fs::openSync opens file with write access", () => {
     try {
         using file = openSync(filePath, { write: true, create: true });
         ok(file.supports.includes("write"));
-        
+
         const buffer = new TextEncoder().encode(content);
         const bytesWritten = file.writeSync(buffer);
         equal(bytesWritten, buffer.length);
@@ -96,14 +97,16 @@ test("fs::openSync throws error when file doesn't exist", () => {
     throws(() => openSync(nonExistentPath, { read: true }));
 });
 
-test("fs::open file supports lock operations", async () => {
+test("fs::open file supports lock operations", {
+    skip: globals.Deno === undefined && !ext.lockSupported,
+}, async () => {
     await exec("mkdir", ["-p", testData]);
     const filePath = join(testData, "lock.txt");
-    
+
     try {
         using file = await open(filePath, { write: true, create: true });
         ok(file.supports.includes("lock"));
-        
+
         await file.lock();
         await file.unlock();
     } finally {
@@ -111,7 +114,9 @@ test("fs::open file supports lock operations", async () => {
     }
 });
 
-test("fs::open file supports seek operations", async () => {
+test("fs::open file supports seek operations", {
+    skip: globals.Deno === undefined && !ext.seekSupported,
+}, async () => {
     await exec("mkdir", ["-p", testData]);
     const filePath = join(testData, "seek.txt");
     const content = "test seek content";
@@ -120,7 +125,7 @@ test("fs::open file supports seek operations", async () => {
         await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
         using file = await open(filePath, { read: true });
         ok(file.supports.includes("seek"));
-        
+
         await file.seek(5, "start");
         const buffer = new Uint8Array(100);
         const bytesRead = await file.read(buffer);
@@ -141,7 +146,7 @@ test("fs::open file supports stat operations", async () => {
         await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
         using file = await open(filePath, { read: true });
         const stat = await file.stat();
-        
+
         ok(stat.isFile);
         equal(stat.size, content.length + 1); // +1 for newline
         ok(stat.mtime instanceof Date);

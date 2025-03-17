@@ -3,7 +3,7 @@
     "description": "fs module",
     "version": "0.1.0",
     "exports": {
-        ".": "./src/mod.ts",
+        ".": "./mod.ts",
         "./chmod": "./chmod.ts",
         "./chown": "./chown.ts",
         "./copy-file": "./copy_file.ts",

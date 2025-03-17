@@ -1,8 +1,7 @@
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
-let fn: typeof import('node:fs').readlinkSync | undefined = undefined;
-let fnAsync: typeof import('node:fs/promises').readlink | undefined = undefined;
-
+let fn: typeof import("node:fs").readlinkSync | undefined = undefined;
+let fnAsync: typeof import("node:fs/promises").readlink | undefined = undefined;
 
 /**
  * Reads the target of a symbolic link.
@@ -22,7 +21,7 @@ export function readLink(path: string | URL): Promise<string> {
     }
 
     return fnAsync(path);
-};
+}
 
 /**
  * Synchronously reads the target of a symbolic link.
@@ -42,4 +41,4 @@ export function readLinkSync(path: string | URL): string {
     }
 
     return fn(path);
-};
+}
