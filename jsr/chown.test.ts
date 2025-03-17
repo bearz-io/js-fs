@@ -1,10 +1,10 @@
 import { test } from "@bearz/testing";
-import { equal, notEqual } from "@bearz/assert";
+import { equal } from "@bearz/assert";
 import { chown, chownSync } from "./chown.ts";
-import { exec, output } from "./_testutils.ts";
+import { exec } from "./_testutils.ts";
 import { join } from "@bearz/path";
 import { uid } from "./uid.ts";
-import { globals } from "./globals.ts";
+import { stat } from "./stat.ts";
 
 const testFile1 = join(import.meta.dirname!, "chown_test.txt");
 const testFile2 = join(import.meta.dirname!, "chown_test2.txt");
@@ -16,16 +16,10 @@ test("chown::chown changes the owner async", { skip: (cu === null || cu !== 0) }
     try {
         await exec("sudo", ["chown", "nobody:nogroup", testFile2]);
         await chown(testFile2, 1000, 1000);
-        const formatFlag = globals.process?.platform === "darwin" ? "-f" : "-c";
-        const o = await output("stat", [formatFlag, "%u:%g", testFile2]);
-        const uid = parseInt(o.stdout.split(":")[0]);
-        const gid = parseInt(o.stdout.split(":")[1]);
-        console.log(o.stdout);
-        notEqual(uid, Number.NaN);
-        notEqual(gid, Number.NaN);
+        const o = await stat(testFile2);
         // 1000 in decimal = 0o1750 in octal
-        equal(uid, 1000);
-        equal(gid, 1000);
+        equal(o.uid, 1000);
+        equal(o.gid, 1000);
     } finally {
         await exec("rm", ["-f", testFile2]);
     }
@@ -37,17 +31,12 @@ test("chown::chownSync changes the owner", { skip: (cu === null || cu !== 0) }, 
     try {
         await exec("sudo", ["chown", "nobody:nogroup", testFile1]);
         chownSync(testFile1, 1000, 1000);
-        const formatFlag = globals.process?.platform === "darwin" ? "-f" : "-c";
 
+        const o = await stat(testFile1);
 
-        const o = await output("stat", [formatFlag, "%u:%g", testFile1]);
-        const uid = parseInt(o.stdout.split(":")[0]);
-        const gid = parseInt(o.stdout.split(":")[1]);
-        notEqual(uid, Number.NaN);
-        notEqual(gid, Number.NaN);
         // 1000 in decimal = 0o1750 in octal
-        equal(uid, 1000);
-        equal(gid, 1000);
+        equal(1000, o.uid);
+        equal(1000, o.gid);
     } finally {
         await exec("rm", ["-f", testFile1]);
     }

@@ -3,7 +3,8 @@ import { equal } from "@bearz/assert";
 import { utime, utimeSync } from "./utime.ts";
 import { globals } from "./globals.ts";
 import { join } from "@bearz/path";
-import { exec, output } from "./_testutils.ts";
+import { exec } from "./_testutils.ts";
+import { stat } from "./stat.ts";
 
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
@@ -20,11 +21,10 @@ test("fs::utime changes access and modification times", async () => {
         await exec("touch", [testFile]);
         await utime(testFile, newAtime, newMtime);
 
-        const formatFlag = globals.process?.platform === "darwin" ? "-f" : "-c";
-        const stats = await output("stat", [formatFlag, "%X %Y", testFile]);
-        const [atime, mtime] = stats.stdout.trim().split(" ");
-        equal(new Date(Number.parseInt(atime) * 1000).getFullYear(), 2023);
-        equal(new Date(Number.parseInt(mtime) * 1000).getFullYear(), 2023);
+        const o = await stat(testFile);
+        const { atime, mtime } = o;
+        equal(atime!.getFullYear(), 2023);
+        equal(mtime!.getFullYear(), 2023);
     } finally {
         await exec("rm", ["-f", testFile]);
     }
