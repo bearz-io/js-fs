@@ -1,7 +1,17 @@
 {
     "name": "@bearz/fs",
-    "description": "fs module",
+    "description": "The fs module provides a modern file system API that works in Deno, Bun, and NodeJs to promote creating cross-runtime packages/modules",
     "version": "0.1.0",
+    "keywords": [
+        "fs",
+        "file",
+        "system",
+        "filesystem",
+        "deno",
+        "bun",
+        "node"
+    ],
+    "homepage": "https://bearz.io",
     "exports": {
         ".": "./mod.ts",
         "./chmod": "./chmod.ts",
