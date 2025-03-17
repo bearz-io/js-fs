@@ -45,7 +45,8 @@ test("fs::makeTempFileSync creates a temporary file with default options", async
 test("fs::makeTempFileSync creates a file with custom prefix and suffix", async () => {
     const file = makeTempFileSync({ prefix: "test-", suffix: ".txt" });
     ok(existsSync(file));
-    ok(file.startsWith(join(g.process.env.TMPDIR ?? "/tmp", "test-")));
+    const tmp = globals.process.env.TEMP ?? globals.process.env.TMPDIR ?? "/tmp";
+    ok(file.startsWith(join(tmp, "test-")));
     ok(file.endsWith(".txt"));
     await remove(file, { recursive: true });
 });
