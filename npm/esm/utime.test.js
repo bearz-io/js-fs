@@ -16,7 +16,8 @@ test("fs::utime changes access and modification times", async () => {
     try {
         await exec("touch", [testFile]);
         await utime(testFile, newAtime, newMtime);
-        const stats = await output("stat", ["-c", "%X %Y", testFile]);
+        const formatFlag = globals.process?.platform === "darwin" ? "-f" : "-c";
+        const stats = await output("stat", [formatFlag, "%X %Y", testFile]);
         const [atime, mtime] = stats.stdout.trim().split(" ");
         equal(new Date(Number.parseInt(atime) * 1000).getFullYear(), 2023);
         equal(new Date(Number.parseInt(mtime) * 1000).getFullYear(), 2023);

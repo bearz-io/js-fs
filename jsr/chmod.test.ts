@@ -2,7 +2,7 @@ import { test } from "@bearz/testing";
 import { equal, notEqual } from "@bearz/assert";
 import { chmod, chmodSync } from "./chmod.ts";
 import { join } from "@bearz/path";
-import { WIN } from "./globals.ts";
+import { globals, WIN } from "./globals.ts";
 import { exec, output } from "./_testutils.ts";
 
 const testFile = join(import.meta.dirname!, "chmod_test.txt");
@@ -13,7 +13,8 @@ test("fs::chmod changes permissions async", { skip: WIN }, async () => {
     try {
         await exec("chmod", ["644", testFile]);
         await chmod(testFile, 0o755);
-        const o = await output("stat", ["-c", "%a", testFile]);
+        const formatFlag = globals.process?.platform === "darwin" ? "-f" : "-c";
+        const o = await output("stat", [formatFlag, "%a", testFile]);
         const mode = parseInt(o.stdout.trim(), 8);
         notEqual(mode, Number.NaN);
         // 0o755 in octal = 493 in decimal
@@ -29,7 +30,8 @@ test("fs::chmodSync changes permissions sync", async () => {
     try {
         await exec("chmod", ["644", testFile]);
         chmodSync(testFile, 0o755);
-        const o = await output("stat", ["-c", "%a", testFile]);
+        const formatFlag = globals.process?.platform === "darwin" ? "-f" : "-c";
+        const o = await output("stat", [formatFlag, "%a", testFile]);
         const mode = parseInt(o.stdout.trim(), 8);
         notEqual(mode, Number.NaN);
         // 0o755 in octal = 493 in decimal
