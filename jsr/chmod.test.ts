@@ -18,7 +18,7 @@ test("fs::chmod changes permissions async", { skip: WIN }, async () => {
         const mode = parseInt(o.stdout.trim(), 8);
         notEqual(mode, Number.NaN);
         // 0o755 in octal = 493 in decimal
-        equal(mode! & 0o777, 0o755);
+        equal(mode!, 0o755);
     } finally {
         await exec("rm", [testFile]);
     }
@@ -35,7 +35,7 @@ test("fs::chmodSync changes permissions sync", async () => {
         const mode = parseInt(o.stdout.trim(), 8);
         notEqual(mode, Number.NaN);
         // 0o755 in octal = 493 in decimal
-        equal(mode! & 0o777, 0o755);
+        equal(mode!, 0o755);
     } finally {
         await exec("rm", [testFile]);
     }
