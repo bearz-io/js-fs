@@ -1,3 +1,9 @@
+/**
+ * The `exists` module provides functions to check if a file or directory exists
+ * and to check its properties.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { stat, statSync } from "./stat.js";
 import { uid } from "./uid.js";

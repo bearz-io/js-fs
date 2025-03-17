@@ -1,3 +1,8 @@
+/**
+ * This module provides functions to change the permissions of files and directories.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync } from "./globals.js";
 let fn;

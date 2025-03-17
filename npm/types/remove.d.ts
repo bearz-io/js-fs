@@ -1,3 +1,8 @@
+/**
+ * The `remove` module provides functions to remove files or directories.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import type { RemoveOptions } from "./types.js";
 /**

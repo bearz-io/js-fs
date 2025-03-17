@@ -1,3 +1,8 @@
+/**
+ * The `make-temp-dir` module provides functions to create temporary directories.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync, WIN } from "./globals.js";
 import { join } from "@bearz/path";

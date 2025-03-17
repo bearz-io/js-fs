@@ -1,4 +1,9 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+/**
+ * The `move` module provides functions to move files and directories.
+ *
+ * @module
+ */
 import { lstat, lstatSync } from "./lstat.ts";
 import { remove, removeSync } from "./remove.ts";
 import { rename, renameSync } from "./rename.ts";

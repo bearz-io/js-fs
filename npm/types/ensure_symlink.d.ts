@@ -1,3 +1,9 @@
+/**
+ * The `ensure-symlink` module provides functions to ensure that a symlink
+ * exists.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Asynchronously ensures that the link exists, and points to a valid file. If

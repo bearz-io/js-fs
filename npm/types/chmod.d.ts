@@ -1,3 +1,8 @@
+/**
+ * This module provides functions to change the permissions of files and directories.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Changes the permissions of a file or directory asynchronously.

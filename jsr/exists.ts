@@ -1,3 +1,9 @@
+/**
+ * The `exists` module provides functions to check if a file or directory exists
+ * and to check its properties.
+ *
+ * @module
+ */
 import type { ExistsOptions } from "./types.ts";
 import { stat, statSync } from "./stat.ts";
 import { uid } from "./uid.ts";

@@ -1,3 +1,9 @@
+/**
+ * The `read-dir` module provides functions to read the contents of a directory
+ * and return information about its contents.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import type { DirectoryInfo } from "./types.js";
 /**

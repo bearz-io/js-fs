@@ -1,3 +1,8 @@
+/**
+ * The `make-temp-file` module provides functions to create temporary files.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import type { MakeTempOptions } from "./types.js";
 /**

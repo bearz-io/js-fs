@@ -1,3 +1,8 @@
+/**
+ * The `lstat` module provides functions to get information about a file or directory.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { basename } from "@bearz/path";
 import { globals, loadFs, loadFsAsync } from "./globals.js";

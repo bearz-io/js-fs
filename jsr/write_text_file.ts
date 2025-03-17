@@ -1,3 +1,9 @@
+/**
+ * The `write-texto-file` module provides functions to write text data to a file.
+ *
+ * @module
+ */
+
 import type { WriteOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 

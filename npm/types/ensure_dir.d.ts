@@ -1,3 +1,8 @@
+/**
+ * The `ensureDir` module provides functions to ensure that a directory exists.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Asynchronously ensures that the directory exists. If the directory structure

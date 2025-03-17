@@ -1,3 +1,8 @@
+/**
+ * The `stat` module provides functions to get information about a file or directory.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import type { FileInfo } from "./types.js";
 /**

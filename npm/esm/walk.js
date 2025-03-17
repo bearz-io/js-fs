@@ -1,3 +1,9 @@
+/**
+ * The `walk` module provides functions to recursively walk through a directory
+ * and yield information about each file and directory encountered.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { join, normalize } from "@bearz/path";
 import { createWalkEntry, createWalkEntrySync, toPathString } from "./utils.js";

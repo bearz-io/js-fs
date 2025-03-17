@@ -1,3 +1,8 @@
+/**
+ * The `write-file` module provides functions to write binary data to a file.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync } from "./globals.js";
 let fn = undefined;

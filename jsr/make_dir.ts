@@ -1,3 +1,9 @@
+/**
+ * This `make0dir` module provides functions to create directories in a file system.
+ *
+ * @module
+ */
+
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 import type { CreateDirectoryOptions } from "./types.ts";
 

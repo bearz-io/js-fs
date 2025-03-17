@@ -1,3 +1,8 @@
+/**
+ * The `realpath` module provides functions to resolve the real path of a file or directory.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync } from "./globals.js";
 let fn = undefined;

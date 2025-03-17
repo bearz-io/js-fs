@@ -1,3 +1,9 @@
+/**
+ * The `rename` module provides functions to rename files or directories.
+ *
+ * @module
+ */
+
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import("node:fs").renameSync | undefined = undefined;

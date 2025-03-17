@@ -1,3 +1,9 @@
+/**
+ * The copy-file module provides functions to copy files synchronously and asynchronously.
+ *
+ * @module
+ */
+
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import("node:fs").copyFileSync | undefined;

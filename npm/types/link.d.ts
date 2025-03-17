@@ -1,3 +1,8 @@
+/**
+ * The `link` module provides functions to create hard links to files.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Creates a hard link.

@@ -1,3 +1,9 @@
+/**
+ * The `is-file` module provides functions to check if a given path is a file.
+ *
+ * @module
+ */
+
 import { stat, statSync } from "./stat.ts";
 
 /**

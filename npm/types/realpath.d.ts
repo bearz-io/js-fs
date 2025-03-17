@@ -1,3 +1,8 @@
+/**
+ * The `realpath` module provides functions to resolve the real path of a file or directory.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Resolves the real path of a file or directory.

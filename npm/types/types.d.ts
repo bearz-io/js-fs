@@ -211,6 +211,15 @@ export interface SymlinkOptions {
  * - `end`: Seek from the end of the file.
  */
 export type SeekMode = "start" | "current" | "end";
+/**
+ * The type of file system operation to perform. The type can be one of the
+ * following:
+ * - `write`: Write to the file.
+ * - `read`: Read from the file.
+ * - `lock`: Lock the file.
+ * - `seek`: Seek in the file.
+ * - `truncate`: Truncate the file.
+ */
 export type FsSupports = "write" | "read" | "lock" | "seek" | "truncate";
 /**
  * Options that can be used with {@linkcode open} and {@linkcode openSync}.

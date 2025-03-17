@@ -1,3 +1,9 @@
+/**
+ * The `link` module provides functions to create hard links to files.
+ *
+ * @module
+ */
+
 import { toPathString } from "./utils.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 

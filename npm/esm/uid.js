@@ -1,3 +1,8 @@
+/**
+ * The `uid` module provides a function to get the current user id on POSIX platforms.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals } from "./globals.js";
 /**

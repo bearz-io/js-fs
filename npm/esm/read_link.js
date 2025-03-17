@@ -1,3 +1,8 @@
+/**
+ * The `read-link` module provides functions to read the target of a symbolic link.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync } from "./globals.js";
 let fn = undefined;

@@ -1,3 +1,8 @@
+/**
+ * The `is-file` module provides functions to check if a given path is a file.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Checks if a path is a file.

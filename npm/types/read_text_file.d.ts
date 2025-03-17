@@ -1,3 +1,8 @@
+/**
+ * The `read-text-file` module provides functions to read the contents of a file as text.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import type { ReadOptions } from "./types.js";
 /**

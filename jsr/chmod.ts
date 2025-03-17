@@ -1,3 +1,9 @@
+/**
+ * This module provides functions to change the permissions of files and directories.
+ *
+ * @module
+ */
+
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import("node:fs").chmodSync | undefined;

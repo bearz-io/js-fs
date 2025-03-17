@@ -1,3 +1,9 @@
+/**
+ * The `stat` module provides functions to get information about a file or directory.
+ *
+ * @module
+ */
+
 import { basename } from "@bearz/path";
 import type { FileInfo } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";

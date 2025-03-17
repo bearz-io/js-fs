@@ -1,3 +1,9 @@
+/**
+ * The `ensure-link` module provides functions to ensure that a hard link
+ * exists.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Asynchronously ensures that the hard link exists. If the directory structure

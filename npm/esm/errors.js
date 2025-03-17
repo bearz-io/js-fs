@@ -1,3 +1,9 @@
+/**
+ * The `errors` module provides custom error classes and utility functions
+ * for handling file system errors in a consistent manner.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals } from "./globals.js";
 /**

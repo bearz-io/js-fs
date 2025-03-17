@@ -1,3 +1,8 @@
+/**
+ * The `utime` module provides functions to change the access time and modification time of a file or directory.
+ *
+ * @module
+ */
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import("node:fs").utimesSync | undefined;

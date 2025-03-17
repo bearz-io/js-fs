@@ -1,3 +1,8 @@
+/**
+ * The `symlink` module provides functions to create symbolic links.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync } from "./globals.js";
 let fn = undefined;

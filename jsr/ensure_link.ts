@@ -1,4 +1,10 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+/**
+ * The `ensure-link` module provides functions to ensure that a hard link
+ * exists.
+ *
+ * @module
+ */
 import { dirname } from "@bearz/path/dirname";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { toPathString } from "./utils.ts";

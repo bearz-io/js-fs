@@ -1,3 +1,8 @@
+/**
+ * The `cwd` module provides a function to get the current working directory.
+ *
+ * @module
+ */
 import { globals } from "./globals.ts";
 
 /**

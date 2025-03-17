@@ -1,3 +1,8 @@
+/**
+ * The `gid` module provides a function to get the current group id on POSIX platforms.
+ * It returns `null` on Windows.
+ * @module
+ */
 import { globals } from "./globals.ts";
 
 /**

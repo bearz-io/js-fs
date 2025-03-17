@@ -1,3 +1,9 @@
+/**
+ * The `errors` module provides custom error classes and utility functions
+ * for handling file system errors in a consistent manner.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Represents an error that occurs when a file or directory already exists.

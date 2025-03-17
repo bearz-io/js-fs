@@ -1,3 +1,8 @@
+/**
+ * The `read-file` module provides functions to read the contents of a file.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync } from "./globals.js";
 let fn = undefined;

@@ -1,3 +1,10 @@
+/**
+ * The `walk` module provides functions to recursively walk through a directory
+ * and yield information about each file and directory encountered.
+ *
+ * @module
+ */
+
 import { join, normalize } from "@bearz/path";
 import { createWalkEntry, createWalkEntrySync, toPathString } from "./utils.ts";
 import type { WalkEntry } from "./types.ts";

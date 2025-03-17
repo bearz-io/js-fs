@@ -1,3 +1,9 @@
+/**
+ * The `empty-dir` module provides functions to ensure that a directory is empty.
+ * It deletes the directory contents if it is not empty. If the directory does not exist, it creates it.
+ *
+ * @module
+ */
 import { toPathString } from "./utils.ts";
 import { join } from "@bearz/path";
 import { isNotFoundError } from "./errors.ts";

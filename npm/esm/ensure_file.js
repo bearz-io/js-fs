@@ -1,4 +1,9 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+/**
+ * The `ensure-file` module provides functions to ensure that a file exists.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { dirname } from "@bearz/path/dirname";
 import { ensureDir, ensureDirSync } from "./ensure_dir.js";

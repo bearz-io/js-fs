@@ -1,3 +1,9 @@
+/**
+ * The `expand-glob` module provides functions to expand glob patterns
+ * asynchronously and synchronously.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { WIN } from "./globals.js";
 import {

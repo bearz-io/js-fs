@@ -1,3 +1,8 @@
+/**
+ * The copy-file module provides functions to copy files synchronously and asynchronously.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync } from "./globals.js";
 let fn;

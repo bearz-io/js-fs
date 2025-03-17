@@ -1,3 +1,8 @@
+/**
+ * The `ensure-file` module provides functions to ensure that a file exists.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Asynchronously ensures that the file exists. If the file that is requested to

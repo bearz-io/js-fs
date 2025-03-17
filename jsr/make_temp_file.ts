@@ -1,3 +1,9 @@
+/**
+ * The `make-temp-file` module provides functions to create temporary files.
+ *
+ * @module
+ */
+
 import type { MakeTempOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync, WIN } from "./globals.ts";
 import { isAbsolute, join } from "@bearz/path";

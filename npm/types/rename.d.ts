@@ -1,3 +1,8 @@
+/**
+ * The `rename` module provides functions to rename files or directories.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Renames a file or directory.

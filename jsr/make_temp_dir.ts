@@ -1,3 +1,9 @@
+/**
+ * The `make-temp-dir` module provides functions to create temporary directories.
+ *
+ * @module
+ */
+
 import type { MakeTempOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync, WIN } from "./globals.ts";
 import { join } from "@bearz/path";

@@ -1,3 +1,9 @@
+/**
+ * The `read-dir` module provides functions to read the contents of a directory
+ * and return information about its contents.
+ *
+ * @module
+ */
 import type { DirectoryInfo } from "./types.ts";
 import { join } from "@bearz/path";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";

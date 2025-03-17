@@ -1,3 +1,8 @@
+/**
+ * The `move` module provides functions to move files and directories.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /** Options for {@linkcode move} and {@linkcode moveSync}. */
 export interface MoveOptions {

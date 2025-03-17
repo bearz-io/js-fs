@@ -1,3 +1,9 @@
+/**
+ * The `uid` module provides a function to get the current user id on POSIX platforms.
+ *
+ * @module
+ */
+
 import { globals } from "./globals.ts";
 
 /**

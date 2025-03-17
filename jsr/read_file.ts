@@ -1,3 +1,9 @@
+/**
+ * The `read-file` module provides functions to read the contents of a file.
+ *
+ * @module
+ */
+
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 import type { ReadOptions } from "./types.ts";
 

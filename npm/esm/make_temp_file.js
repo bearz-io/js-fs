@@ -1,3 +1,8 @@
+/**
+ * The `make-temp-file` module provides functions to create temporary files.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync, WIN } from "./globals.js";
 import { isAbsolute, join } from "@bearz/path";

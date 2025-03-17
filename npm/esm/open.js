@@ -1,4 +1,11 @@
 // deno-lint-ignore-file no-unused-vars
+/**
+ * The `open` module provides a function to open files
+ * in a file system. It supports both synchronous and asynchronous
+ * operations such as read, write, and seek.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { basename } from "@bearz/path";
 import { globals, loadFs } from "./globals.js";

@@ -1,3 +1,8 @@
+/**
+ * This module provides functions to change the owner and group of a file or directory.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Changes the owner and group of a file or directory asynchronously.

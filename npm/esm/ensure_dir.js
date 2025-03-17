@@ -1,4 +1,10 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// Copyright 2025 jolt9dev jolt9 bearz.io for any modifications. All rights reserved. MIT license.
+/**
+ * The `ensureDir` module provides functions to ensure that a directory exists.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { isAlreadyExistsError, isNotFoundError } from "./errors.js";
 import { makeDir, makeDirSync } from "./make_dir.js";

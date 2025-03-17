@@ -1,3 +1,8 @@
+/**
+ * This `make0dir` module provides functions to create directories in a file system.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import { globals, loadFs, loadFsAsync } from "./globals.js";
 let fn;

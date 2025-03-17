@@ -1,3 +1,8 @@
+/**
+ * The `remove` module provides functions to remove files or directories.
+ *
+ * @module
+ */
 import type { RemoveOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 

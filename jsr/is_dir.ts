@@ -1,3 +1,8 @@
+/**
+ * The `is-dir` module provides functions to check if a given path is a directory.
+ *
+ * @module
+ */
 import { stat, statSync } from "./stat.ts";
 
 /**

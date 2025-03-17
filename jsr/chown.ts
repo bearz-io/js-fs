@@ -1,3 +1,8 @@
+/**
+ * This module provides functions to change the owner and group of a file or directory.
+ *
+ * @module
+ */
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import("node:fs").chownSync | undefined;

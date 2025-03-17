@@ -1,3 +1,8 @@
+/**
+ * The `read-link` module provides functions to read the target of a symbolic link.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /**
  * Reads the target of a symbolic link.

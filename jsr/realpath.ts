@@ -1,3 +1,8 @@
+/**
+ * The `realpath` module provides functions to resolve the real path of a file or directory.
+ *
+ * @module
+ */
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import("node:fs").realpathSync | undefined = undefined;

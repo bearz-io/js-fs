@@ -1,3 +1,9 @@
+/**
+ * The copy module provides functions to copy files and directories
+ * synchronously and asynchronously. It supports various file system
+ * operations, including copying files, directories, and symbolic links.
+ * @module
+ */
 import "./_dnt.polyfills.js";
 /** Options for {@linkcode copy} and {@linkcode copySync}. */
 export interface CopyOptions {

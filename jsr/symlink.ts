@@ -1,3 +1,8 @@
+/**
+ * The `symlink` module provides functions to create symbolic links.
+ *
+ * @module
+ */
 import type { SymlinkOptions } from "./types.ts";
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 

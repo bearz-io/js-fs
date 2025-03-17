@@ -1,4 +1,10 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+/**
+ * The `ensure-symlink` module provides functions to ensure that a symlink
+ * exists.
+ *
+ * @module
+ */
 import { dirname } from "@bearz/path/dirname";
 import { resolve } from "@bearz/path/resolve";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";

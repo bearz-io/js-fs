@@ -1,3 +1,10 @@
+/**
+ * The `expand-glob` module provides functions to expand glob patterns
+ * asynchronously and synchronously.
+ *
+ * @module
+ */
+
 import { WIN } from "./globals.ts";
 import {
     type GlobOptions,

@@ -1,3 +1,10 @@
+/**
+ * The `open` module provides a function to open files
+ * in a file system. It supports both synchronous and asynchronous
+ * operations such as read, write, and seek.
+ *
+ * @module
+ */
 import "./_dnt.polyfills.js";
 import type { FileInfo, FsSupports, OpenOptions, SeekMode } from "./types.js";
 export interface Extras {

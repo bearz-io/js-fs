@@ -1,3 +1,9 @@
+/**
+ * The `read-link` module provides functions to read the target of a symbolic link.
+ *
+ * @module
+ */
+
 import { globals, loadFs, loadFsAsync } from "./globals.ts";
 
 let fn: typeof import("node:fs").readlinkSync | undefined = undefined;
