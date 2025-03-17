@@ -1,9 +1,11 @@
 import { test } from "@bearz/testing";
-import { ok, rejects, throws } from "@bearz/assert";
+import {  ok, rejects, throws } from "@bearz/assert";
 import { remove, removeSync } from "./remove.ts";
 import { join } from "@bearz/path";
-import { exec, output } from "./_testutils.ts";
 import { globals } from "./globals.ts";
+import { exists } from "./exists.ts";
+import { makeDir } from "./make_dir.ts";
+import { writeTextFile } from "./write_text_file.ts";
 
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
@@ -11,30 +13,30 @@ const g = globals as Record<string, any>;
 const testData = join(import.meta.dirname!, "test-data", "remove");
 
 test("fs::remove deletes a file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test1.txt");
 
     try {
-        await exec("bash", ["-c", `echo "test content" > ${filePath}`]);
+        await writeTextFile(filePath, "test content");
         await remove(filePath);
-        const exists = await output("test", ["-f", filePath]).then(() => true).catch(() => false);
-        ok(!exists, "File should be deleted");
+        const e = await exists(filePath);
+        ok(!e, "File should be deleted");
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 
 test("fs::removeSync deletes a file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test2.txt");
 
     try {
-        await exec("bash", ["-c", `echo "test content" > ${filePath}`]);
+        await writeTextFile(filePath, "test content");
         removeSync(filePath);
-        const exists = await output("test", ["-f", filePath]).then(() => true).catch(() => false);
-        ok(!exists, "File should be deleted");
+        const e = await exists(filePath);
+        ok(!e, "File should be deleted");
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 
