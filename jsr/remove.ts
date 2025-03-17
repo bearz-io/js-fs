@@ -32,8 +32,6 @@ export function remove(
         }
     }
 
-
-
     return fnAsync(path, { ...options }).catch((err) => {
         if ((err as Error & { code: string }).code === "ERR_FS_EISDIR") {
             if (!rmDirAsync) {

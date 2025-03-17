@@ -16,7 +16,6 @@ test("fs::makeDir creates a directory", async () => {
     const dirPath = join(testData, "new-dir");
     await makeDir(testData, { recursive: true });
     try {
-        
         await makeDir(dirPath);
         const o = await output("test", ["-d", dirPath]);
         equal(o.code, 0);

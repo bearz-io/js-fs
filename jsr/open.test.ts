@@ -151,7 +151,7 @@ test("fs::open file supports stat operations", async () => {
         const stat = await file.stat();
 
         ok(stat.isFile);
-        equal(stat.size, content.length); 
+        equal(stat.size, content.length);
         ok(stat.mtime instanceof Date);
         ok(stat.atime instanceof Date);
     } finally {
