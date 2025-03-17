@@ -1,5 +1,5 @@
 import { test } from "@bearz/testing";
-import {  ok, rejects, throws } from "@bearz/assert";
+import { ok, rejects, throws } from "@bearz/assert";
 import { remove, removeSync } from "./remove.ts";
 import { join } from "@bearz/path";
 import { globals } from "./globals.ts";
