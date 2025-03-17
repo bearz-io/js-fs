@@ -2,13 +2,13 @@ import { test } from "@bearz/testing";
 import { equal, ok, rejects, throws } from "@bearz/assert";
 import { ext, open, openSync } from "./open.ts";
 import { join } from "@bearz/path";
-import { exec, execSync, output, outputSync } from "./_testutils.ts";
 import { globals } from "./globals.ts";
-import { makeDir } from "./make_dir.ts";
-import { writeTextFile } from "./write_text_file.ts";
-import { remove } from "./remove.ts";
+import { makeDir, makeDirSync } from "./make_dir.ts";
+import { writeTextFile, writeTextFileSync } from "./write_text_file.ts";
+import { remove, removeSync } from "./remove.ts";
+import { readTextFile, readTextFileSync } from "./read_text_file.ts";
 
-const testData = join(import.meta.dirname!, "test-data");
+const testData = join(import.meta.dirname!, "test-data", "open");
 
 test("fs::open opens file with read access", async () => {
     await makeDir(testData, { recursive: true });
@@ -43,20 +43,20 @@ test("fs::open opens file with write access", async () => {
         const bytesWritten = await file.write(buffer);
         equal(bytesWritten, buffer.length);
 
-        const fileContent = await output("cat", [filePath]);
-        equal(fileContent.stdout.trim(), content);
+        const fileContent = await readTextFile(filePath);
+        equal(fileContent, content);
     } finally {
         await remove(filePath);
     }
 });
 
 test("fs::openSync opens file with read access", () => {
-    execSync("mkdir", ["-p", testData]);
+    makeDirSync(testData, { recursive: true });
     const filePath = join(testData, "read-sync.txt");
     const content = "test sync content";
 
     try {
-        execSync("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        writeTextFileSync(filePath, content);
         using file = openSync(filePath, { read: true });
         ok(file.supports.includes("read"));
 
@@ -66,12 +66,12 @@ test("fs::openSync opens file with read access", () => {
         const text = new TextDecoder().decode(buffer.subarray(0, bytesRead!));
         equal(text.trim(), content);
     } finally {
-        execSync("rm", ["-f", filePath]);
+        removeSync(filePath);
     }
 });
 
 test("fs::openSync opens file with write access", () => {
-    execSync("mkdir", ["-p", testData]);
+    makeDirSync(testData, { recursive: true });
     const filePath = join(testData, "write-sync.txt");
     const content = "test sync write content";
 
@@ -83,10 +83,10 @@ test("fs::openSync opens file with write access", () => {
         const bytesWritten = file.writeSync(buffer);
         equal(bytesWritten, buffer.length);
 
-        const fileContent = outputSync("cat", [filePath]).stdout;
+        const fileContent = readTextFileSync(filePath);
         equal(fileContent.trim(), content);
     } finally {
-        execSync("rm", ["-f", filePath]);
+        removeSync(filePath);
     }
 });
 
@@ -103,7 +103,7 @@ test("fs::openSync throws error when file doesn't exist", () => {
 test("fs::open file supports lock operations", {
     skip: globals.Deno === undefined && !ext.lockSupported,
 }, async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "lock.txt");
 
     try {
@@ -113,19 +113,19 @@ test("fs::open file supports lock operations", {
         await file.lock();
         await file.unlock();
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 
 test("fs::open file supports seek operations", {
     skip: globals.Deno === undefined && !ext.seekSupported,
 }, async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "seek.txt");
     const content = "test seek content";
 
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        await writeTextFile(filePath, content);
         using file = await open(filePath, { read: true });
         ok(file.supports.includes("seek"));
 
@@ -136,25 +136,25 @@ test("fs::open file supports seek operations", {
         const text = new TextDecoder().decode(buffer.subarray(0, bytesRead!));
         equal(text.trim(), content.slice(5));
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 
 test("fs::open file supports stat operations", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "stat.txt");
     const content = "test stat content";
 
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        await writeTextFile(filePath, content);
         using file = await open(filePath, { read: true });
         const stat = await file.stat();
 
         ok(stat.isFile);
-        equal(stat.size, content.length + 1); // +1 for newline
+        equal(stat.size, content.length); 
         ok(stat.mtime instanceof Date);
         ok(stat.atime instanceof Date);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });

@@ -7,7 +7,7 @@ import { remove } from "./remove.ts";
 import { makeDir } from "./make_dir.ts";
 import { readTextFile } from "./read_text_file.ts";
 
-const testData = join(import.meta.dirname!, "test-data");
+const testData = join(import.meta.dirname!, "test-data", "symlink");
 
 test("fs::symlink creates a symbolic link to a file", async () => {
     await makeDir(testData, { recursive: true });

@@ -10,12 +10,13 @@ import { removeSync } from "./remove.ts";
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
 
-const testData = join(import.meta.dirname!, "test-data");
+const testData = join(import.meta.dirname!, "test-data", "make_dir");
 
 test("fs::makeDir creates a directory", async () => {
     const dirPath = join(testData, "new-dir");
-
+    await makeDir(testData, { recursive: true });
     try {
+        
         await makeDir(dirPath);
         const o = await output("test", ["-d", dirPath]);
         equal(o.code, 0);
@@ -26,9 +27,9 @@ test("fs::makeDir creates a directory", async () => {
 
 test("fs::makeDir throws when directory already exists", async () => {
     const dirPath = join(testData, "existing-dir");
-
+    await makeDir(testData, { recursive: true });
     try {
-        await exec("mkdir", ["-p", dirPath]);
+        await makeDir(dirPath, { recursive: true });
         await rejects(async () => await makeDir(dirPath));
     } finally {
         await exec("rm", ["-rf", dirPath]);

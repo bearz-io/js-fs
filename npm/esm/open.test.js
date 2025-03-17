@@ -72,12 +72,12 @@ import { test } from "@bearz/testing";
 import { equal, ok, rejects, throws } from "@bearz/assert";
 import { ext, open, openSync } from "./open.js";
 import { join } from "@bearz/path";
-import { exec, execSync, output, outputSync } from "./_testutils.js";
 import { globals } from "./globals.js";
-import { makeDir } from "./make_dir.js";
-import { writeTextFile } from "./write_text_file.js";
-import { remove } from "./remove.js";
-const testData = join(import.meta.dirname, "test-data");
+import { makeDir, makeDirSync } from "./make_dir.js";
+import { writeTextFile, writeTextFileSync } from "./write_text_file.js";
+import { remove, removeSync } from "./remove.js";
+import { readTextFile, readTextFileSync } from "./read_text_file.js";
+const testData = join(import.meta.dirname, "test-data", "open");
 test("fs::open opens file with read access", async () => {
     await makeDir(testData, { recursive: true });
     const filePath = join(testData, "read1.txt");
@@ -123,8 +123,8 @@ test("fs::open opens file with write access", async () => {
             const buffer = new TextEncoder().encode(content);
             const bytesWritten = await file.write(buffer);
             equal(bytesWritten, buffer.length);
-            const fileContent = await output("cat", [filePath]);
-            equal(fileContent.stdout.trim(), content);
+            const fileContent = await readTextFile(filePath);
+            equal(fileContent, content);
         } catch (e_2) {
             env_2.error = e_2;
             env_2.hasError = true;
@@ -136,13 +136,13 @@ test("fs::open opens file with write access", async () => {
     }
 });
 test("fs::openSync opens file with read access", () => {
-    execSync("mkdir", ["-p", testData]);
+    makeDirSync(testData, { recursive: true });
     const filePath = join(testData, "read-sync.txt");
     const content = "test sync content";
     try {
         const env_3 = { stack: [], error: void 0, hasError: false };
         try {
-            execSync("bash", ["-c", `echo "${content}" > ${filePath}`]);
+            writeTextFileSync(filePath, content);
             const file = __addDisposableResource(env_3, openSync(filePath, { read: true }), false);
             ok(file.supports.includes("read"));
             const buffer = new Uint8Array(100);
@@ -157,11 +157,11 @@ test("fs::openSync opens file with read access", () => {
             __disposeResources(env_3);
         }
     } finally {
-        execSync("rm", ["-f", filePath]);
+        removeSync(filePath);
     }
 });
 test("fs::openSync opens file with write access", () => {
-    execSync("mkdir", ["-p", testData]);
+    makeDirSync(testData, { recursive: true });
     const filePath = join(testData, "write-sync.txt");
     const content = "test sync write content";
     try {
@@ -176,7 +176,7 @@ test("fs::openSync opens file with write access", () => {
             const buffer = new TextEncoder().encode(content);
             const bytesWritten = file.writeSync(buffer);
             equal(bytesWritten, buffer.length);
-            const fileContent = outputSync("cat", [filePath]).stdout;
+            const fileContent = readTextFileSync(filePath);
             equal(fileContent.trim(), content);
         } catch (e_4) {
             env_4.error = e_4;
@@ -185,7 +185,7 @@ test("fs::openSync opens file with write access", () => {
             __disposeResources(env_4);
         }
     } finally {
-        execSync("rm", ["-f", filePath]);
+        removeSync(filePath);
     }
 });
 test("fs::open throws error when file doesn't exist", async () => {
@@ -199,7 +199,7 @@ test("fs::openSync throws error when file doesn't exist", () => {
 test("fs::open file supports lock operations", {
     skip: globals.Deno === undefined && !ext.lockSupported,
 }, async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "lock.txt");
     try {
         const env_5 = { stack: [], error: void 0, hasError: false };
@@ -219,19 +219,19 @@ test("fs::open file supports lock operations", {
             __disposeResources(env_5);
         }
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 test("fs::open file supports seek operations", {
     skip: globals.Deno === undefined && !ext.seekSupported,
 }, async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "seek.txt");
     const content = "test seek content";
     try {
         const env_6 = { stack: [], error: void 0, hasError: false };
         try {
-            await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+            await writeTextFile(filePath, content);
             const file = __addDisposableResource(
                 env_6,
                 await open(filePath, { read: true }),
@@ -251,17 +251,17 @@ test("fs::open file supports seek operations", {
             __disposeResources(env_6);
         }
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });
 test("fs::open file supports stat operations", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "stat.txt");
     const content = "test stat content";
     try {
         const env_7 = { stack: [], error: void 0, hasError: false };
         try {
-            await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+            await writeTextFile(filePath, content);
             const file = __addDisposableResource(
                 env_7,
                 await open(filePath, { read: true }),
@@ -269,7 +269,7 @@ test("fs::open file supports stat operations", async () => {
             );
             const stat = await file.stat();
             ok(stat.isFile);
-            equal(stat.size, content.length + 1); // +1 for newline
+            equal(stat.size, content.length);
             ok(stat.mtime instanceof Date);
             ok(stat.atime instanceof Date);
         } catch (e_7) {
@@ -279,6 +279,6 @@ test("fs::open file supports stat operations", async () => {
             __disposeResources(env_7);
         }
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(filePath);
     }
 });

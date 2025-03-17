@@ -7,7 +7,7 @@ import { join } from "@bearz/path";
 import { exec } from "./_testutils.js";
 // deno-lint-ignore no-explicit-any
 const g = globals;
-const testData = join(import.meta.dirname, "test-data");
+const testData = join(import.meta.dirname, "test-data", "realpath");
 test("fs::realPath resolves path when Deno exists", async () => {
     const { Deno: od } = globals;
     delete g["Deno"];

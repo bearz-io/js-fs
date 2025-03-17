@@ -2,29 +2,12 @@ import { test } from "@bearz/testing";
 import { equal, ok } from "@bearz/assert";
 import { makeTempDir, makeTempDirSync } from "./make_temp_dir.ts";
 import { globals } from "./globals.ts";
-
-import { exec, execSync } from "./_testutils.ts";
 import { makeDir } from "./make_dir.ts";
 import { remove } from "./remove.ts";
+import { exists, existsSync } from "./exists.ts";
 
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
-
-function exists(path: string): Promise<boolean> {
-    return new Promise((resolve) => {
-        exec("test", ["-d", path])
-            .then((code) => resolve(code === 0))
-            .catch(() => resolve(false));
-    });
-}
-
-function existsSync(path: string): boolean {
-    try {
-        return execSync("test", ["-d", path]) === 0;
-    } catch {
-        return false;
-    }
-}
 
 test("fs::makeTempDir creates temporary directory with default options", async () => {
     const tempDir = await makeTempDir();

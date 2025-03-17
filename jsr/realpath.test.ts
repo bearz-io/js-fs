@@ -8,7 +8,7 @@ import { exec } from "./_testutils.ts";
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
 
-const testData = join(import.meta.dirname!, "test-data");
+const testData = join(import.meta.dirname!, "test-data", "realpath");
 
 test("fs::realPath resolves path when Deno exists", async () => {
     const { Deno: od } = globals;

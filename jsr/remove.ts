@@ -32,6 +32,8 @@ export function remove(
         }
     }
 
+
+
     return fnAsync(path, { ...options }).catch((err) => {
         if ((err as Error & { code: string }).code === "ERR_FS_EISDIR") {
             if (!rmDirAsync) {
@@ -41,7 +43,7 @@ export function remove(
                 }
             }
 
-            return rmDirAsync(path, { ...options });
+            return rmDirAsync(path);
         } else if (globals.Bun && (err as Error & { code: string }).code === "EFAULT") {
             // Bun specific error handling
             if (!rmDirAsync) {
@@ -51,7 +53,7 @@ export function remove(
                 }
             }
 
-            return rmDirAsync(path, { ...options, recursive: true });
+            return rmDirAsync(path);
         } else {
             return Promise.reject(err);
         }
@@ -85,8 +87,6 @@ export function removeSync(path: string | URL, options?: RemoveOptions): void {
                     throw new Error("No suitable file system module found.");
                 }
             }
-
-            rmDir(path, { ...options });
         } else if (globals.Bun && (err as Error & { code: string }).code === "EFAULT") {
             // Bun specific error handling
             if (!rmDir) {
@@ -96,7 +96,7 @@ export function removeSync(path: string | URL, options?: RemoveOptions): void {
                 }
             }
 
-            rmDir(path, { ...options, recursive: true });
+            rmDir(path, { ...options });
         } else {
             throw err;
         }

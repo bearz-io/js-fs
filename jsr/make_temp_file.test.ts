@@ -1,44 +1,30 @@
 import { test } from "@bearz/testing";
 import { equal, ok } from "@bearz/assert";
 import { makeTempFile, makeTempFileSync } from "./make_temp_file.ts";
-import { exec, execSync } from "./_testutils.ts";
-import { dirname, join } from "@bearz/path";
+import { join } from "@bearz/path";
 import { globals } from "./globals.ts";
 import { makeDir } from "./make_dir.ts";
+import { remove } from "./remove.ts";
+import { exists, existsSync } from "./exists.ts";
 
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
-const testData = join(import.meta.dirname!, "test-data");
-
-function exists(path: string): Promise<boolean> {
-    return new Promise((resolve) => {
-        exec("test", ["-f", path])
-            .then((code) => resolve(code === 0))
-            .catch(() => resolve(false));
-    });
-}
-
-function existsSync(path: string): boolean {
-    try {
-        return execSync("test", ["-f", path]) === 0;
-    } catch {
-        return false;
-    }
-}
+const testData = join(import.meta.dirname!, "test-data", "make_temp_file");
 
 test("fs::makeTempFile creates a temporary file with default options", async () => {
     const file = await makeTempFile();
     console.log(file);
     ok(await exists(file), "File should exist");
-    await exec("rm", ["-f", file]);
+    await remove(file);
 });
 
 test("fs::makeTempFile creates a file with custom prefix and suffix", async () => {
     const file = await makeTempFile({ prefix: "test-", suffix: ".txt" });
     ok(await exists(file));
-    ok(file.startsWith(join(g.process.env.TMPDIR ?? "/tmp", "test-")));
+    const tmp = globals.process.env.TEMP ?? globals.process.env.TMPDIR ?? "/tmp";
+    ok(file.startsWith(join(tmp, "test-")));
     ok(file.endsWith(".txt"));
-    await exec("rm", ["-f", file]);
+    await remove(file);
 });
 
 test("fs::makeTempFile creates a file in custom directory", async () => {
@@ -47,14 +33,13 @@ test("fs::makeTempFile creates a file in custom directory", async () => {
     const file = await makeTempFile({ dir: customDir });
     ok(await exists(file), `File ${file} should exist in ${customDir}`);
     ok(file.includes(customDir));
-    const dir = dirname(file);
-    await exec("rm", ["-rf", dir]);
+    await remove(customDir, { recursive: true });
 });
 
 test("fs::makeTempFileSync creates a temporary file with default options", async () => {
     const file = makeTempFileSync();
     ok(existsSync(file));
-    await exec("rm", ["-f", file]);
+    await remove(file, { recursive: true });
 });
 
 test("fs::makeTempFileSync creates a file with custom prefix and suffix", async () => {
@@ -62,7 +47,7 @@ test("fs::makeTempFileSync creates a file with custom prefix and suffix", async 
     ok(existsSync(file));
     ok(file.startsWith(join(g.process.env.TMPDIR ?? "/tmp", "test-")));
     ok(file.endsWith(".txt"));
-    await exec("rm", ["-f", file]);
+    await remove(file, { recursive: true });
 });
 
 test("fs::makeTempFileSync creates a file in custom directory", async () => {
@@ -71,7 +56,7 @@ test("fs::makeTempFileSync creates a file in custom directory", async () => {
     const file = makeTempFileSync({ dir: customDir });
     ok(existsSync(file));
     ok(file.includes(customDir));
-    await exec("rm", ["-rf", join(g.process.env.TMPDIR ?? "/tmp", customDir)]);
+    await remove(customDir, { recursive: true });
 });
 
 test("fs::makeTempFile uses Deno.makeTempFile when available", async () => {

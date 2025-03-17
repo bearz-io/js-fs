@@ -7,7 +7,7 @@ import { writeTextFile } from "./write_text_file.js";
 import { remove } from "./remove.js";
 import { makeDir } from "./make_dir.js";
 import { readTextFile } from "./read_text_file.js";
-const testData = join(import.meta.dirname, "test-data");
+const testData = join(import.meta.dirname, "test-data", "symlink");
 test("fs::symlink creates a symbolic link to a file", async () => {
     await makeDir(testData, { recursive: true });
     const sourcePath = join(testData, "source1.txt");

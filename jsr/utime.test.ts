@@ -9,7 +9,7 @@ import { stat } from "./stat.ts";
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
 
-const testData = join(import.meta.dirname!, "test-data");
+const testData = join(import.meta.dirname!, "test-data", "utime");
 
 test("fs::utime changes access and modification times", async () => {
     await exec("mkdir", ["-p", testData]);

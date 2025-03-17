@@ -3,25 +3,11 @@ import { test } from "@bearz/testing";
 import { equal, ok } from "@bearz/assert";
 import { makeTempDir, makeTempDirSync } from "./make_temp_dir.js";
 import { globals } from "./globals.js";
-import { exec, execSync } from "./_testutils.js";
 import { makeDir } from "./make_dir.js";
 import { remove } from "./remove.js";
+import { exists, existsSync } from "./exists.js";
 // deno-lint-ignore no-explicit-any
 const g = globals;
-function exists(path) {
-    return new Promise((resolve) => {
-        exec("test", ["-d", path])
-            .then((code) => resolve(code === 0))
-            .catch(() => resolve(false));
-    });
-}
-function existsSync(path) {
-    try {
-        return execSync("test", ["-d", path]) === 0;
-    } catch {
-        return false;
-    }
-}
 test("fs::makeTempDir creates temporary directory with default options", async () => {
     const tempDir = await makeTempDir();
     ok(await exists(tempDir));

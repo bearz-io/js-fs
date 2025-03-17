@@ -8,7 +8,7 @@ import { exec } from "./_testutils.js";
 import { stat } from "./stat.js";
 // deno-lint-ignore no-explicit-any
 const g = globals;
-const testData = join(import.meta.dirname, "test-data");
+const testData = join(import.meta.dirname, "test-data", "utime");
 test("fs::utime changes access and modification times", async () => {
     await exec("mkdir", ["-p", testData]);
     const testFile = join(testData, "utime-test.txt");
