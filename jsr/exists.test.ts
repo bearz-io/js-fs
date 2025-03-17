@@ -22,7 +22,11 @@ test("fs::exists() returns false for a non-existent path", async function () {
 test("fs::existsSync() returns false for a non-existent path", function () {
     const tempDirPath = makeTempDirSync();
     try {
-        equal(existsSync(path.join(tempDirPath, "not_exists")), false);
+        const p = path.join(tempDirPath, "not_exists");
+        console.log(p);
+        const v = existsSync(p);
+        console.log("existsSync", v);
+        equal(v, false);
     } finally {
         removeSync(tempDirPath, { recursive: true });
     }
@@ -31,7 +35,7 @@ test("fs::existsSync() returns false for a non-existent path", function () {
 test("fs::exists() returns true for an existing file", async function () {
     const tempDirPath = await makeTempDir();
     const tempFilePath = path.join(tempDirPath, "0.ts");
-    writeFile(tempFilePath, new Uint8Array([0]));
+    await writeFile(tempFilePath, new Uint8Array([0]));
     try {
         equal(await exists(tempFilePath), true);
         equal(await exists(tempFilePath, {}), true);
@@ -69,7 +73,7 @@ test("fs::exists() returns true for an existing file symlink", async function ()
     const tempDirPath = await makeTempDir();
     const tempFilePath = path.join(tempDirPath, "0.ts");
     const tempLinkFilePath = path.join(tempDirPath, "0-link.ts");
-    writeFile(tempFilePath, new Uint8Array());
+    await writeFile(tempFilePath, new Uint8Array());
     try {
         await symlink(tempFilePath, tempLinkFilePath);
         equal(await exists(tempLinkFilePath), true);

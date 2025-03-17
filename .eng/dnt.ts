@@ -108,6 +108,8 @@ await Deno.writeTextFile(
     `vite.config.ts
 .artifacts/**
 node_modules/**
+esm/testdata/**
+esm/test-data/**
 bun.lock
 bun.lockb`,
     { append: true },
