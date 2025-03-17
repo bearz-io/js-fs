@@ -3,16 +3,19 @@ import { equal } from "@bearz/assert";
 import { isDir, isDirSync } from "./is_dir.ts";
 import { join } from "@bearz/path";
 import { exec } from "./_testutils.ts";
+import { makeDir } from "./make_dir.ts";
+import { ensureFile } from "./ensure_file.ts";
+import { remove } from "./remove.ts";
 
 const testData = join(import.meta.dirname!, "test-data", "is_dir");
 
 test("fs::isDir returns true for existing directory", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     try {
         const result = await isDir(testData);
         equal(result, true);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 
@@ -23,25 +26,25 @@ test("fs::isDir returns false for non-existent path", async () => {
 });
 
 test("fs::isDir returns false for file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test.txt");
 
     try {
-        await exec("touch", [filePath]);
+        await ensureFile(filePath);
         const result = await isDir(filePath);
         equal(result, false);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 
 test("fs::isDirSync returns true for existing directory", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true })
     try {
         const result = isDirSync(testData);
         equal(result, true);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 
@@ -52,14 +55,14 @@ test("fs::isDirSync returns false for non-existent path", () => {
 });
 
 test("fs::isDirSync returns false for file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true })
     const filePath = join(testData, "test.txt");
 
     try {
-        await exec("bash", ["-c", `echo "test" > ${filePath}`]);
+        await ensureFile(filePath);
         const result = isDirSync(filePath);
         equal(result, false);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });

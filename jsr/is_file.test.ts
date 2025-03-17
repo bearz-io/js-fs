@@ -2,21 +2,22 @@ import { test } from "@bearz/testing";
 import { equal } from "@bearz/assert";
 import { isFile, isFileSync } from "./is_file.ts";
 import { join } from "@bearz/path";
-import { exec } from "./_testutils.ts";
 import { makeDir, makeDirSync } from "./make_dir.ts";
+import { writeTextFile } from "./write_text_file.ts";
+import { remove } from "./remove.ts";
 
 const testData = join(import.meta.dirname!, "test-data", "is_file");
 
 test("fs::isFile returns true for existing file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "test.txt");
 
     try {
-        await exec("bash", ["-c", `echo "test" > ${filePath}`]);
+        await writeTextFile(filePath, "test content");
         const result = await isFile(filePath);
         equal(result, true);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(testData, { recursive: true });
     }
 });
 
@@ -26,7 +27,7 @@ test("fs::isFile returns false for directory", async () => {
         const result = await isFile(testData);
         equal(result, false);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 
@@ -40,11 +41,11 @@ test("fs::isFileSync returns true for existing file", async () => {
     const filePath = join(testData, "test.txt");
 
     try {
-        await exec("bash", ["-c", `echo "test" > ${filePath}`]);
+        await writeTextFile(filePath, "test content");
         const result = isFileSync(filePath);
         equal(result, true);
     } finally {
-        await exec("rm", ["-f", filePath]);
+        await remove(testData, { recursive: true });
     }
 });
 
@@ -54,7 +55,7 @@ test("fs::isFileSync returns false for directory", async () => {
         const result = isFileSync(testData);
         equal(result, false);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 

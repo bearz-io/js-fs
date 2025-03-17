@@ -4,6 +4,8 @@ import { makeTempDir, makeTempDirSync } from "./make_temp_dir.ts";
 import { globals } from "./globals.ts";
 
 import { exec, execSync } from "./_testutils.ts";
+import { makeDir } from "./make_dir.ts";
+import { remove } from "./remove.ts";
 
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
@@ -46,11 +48,11 @@ test("fs::makeTempDir creates directory with suffix", async () => {
 
 test("fs::makeTempDir creates directory in specified dir", async () => {
     const baseDir = "/tmp/test-base";
-    await exec("mkdir", ["-p", baseDir]);
+    await makeDir(baseDir, { recursive: true });
     const tempDir = await makeTempDir({ dir: baseDir });
     ok(tempDir.startsWith(baseDir));
     ok(await exists(tempDir));
-    await exec("rm", ["-rf", baseDir]);
+    await remove(baseDir);
 });
 
 test("fs::makeTempDir uses Deno.makeTempDir when available", async () => {
@@ -89,12 +91,12 @@ test("fs::makeTempDirSync creates directory with suffix", async () => {
 
 test("fs::makeTempDirSync creates directory in specified dir", async () => {
     const baseDir = "/tmp/test-base";
-    await exec("mkdir", ["-p", baseDir]);
+    await makeDir(baseDir, { recursive: true });
     const tempDir = makeTempDirSync({ dir: baseDir });
     ok(tempDir.startsWith(baseDir));
 
     ok(existsSync(tempDir));
-    await exec("rm", ["-rf", baseDir]);
+    await remove(baseDir);
 });
 
 test("fs::makeTempDirSync uses Deno.makeTempDirSync when available", () => {

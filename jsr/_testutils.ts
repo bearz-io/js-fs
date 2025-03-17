@@ -145,8 +145,14 @@ export function execSync(command: string, args: string[], options?: ExecOptions)
         stderr: "inherit",
     };
 
-    return spawnSync(command, args, {
+    const code = spawnSync(command, args, {
         stdio: "inherit",
         ...options,
     }).status ?? 0;
+
+    if (code !== 0) {
+        throw new Error(`Command failed with exit code ${code}`);
+    }
+
+    return code; 
 }

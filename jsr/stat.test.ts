@@ -2,8 +2,10 @@ import { test } from "@bearz/testing";
 import { equal, ok } from "@bearz/assert";
 import { stat, statSync } from "./stat.ts";
 import { join } from "@bearz/path";
-import { exec } from "./_testutils.ts";
 import { globals } from "./globals.ts";
+import { makeDir } from "./make_dir.ts";
+import { writeTextFile } from "./write_text_file.ts";
+import { remove } from "./remove.ts";
 
 // deno-lint-ignore no-explicit-any
 const g = globals as Record<string, any>;
@@ -11,12 +13,12 @@ const g = globals as Record<string, any>;
 const testData = join(import.meta.dirname!, "test-data", "stat");
 
 test("fs::stat gets file information for a file", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir   (testData, { recursive: true });
     const filePath = join(testData, "test.txt");
     const content = "test content";
 
     try {
-        await exec("bash", ["-c", `echo "${content}" > ${filePath}`]);
+        await writeTextFile(filePath, content);
         const info = await stat(filePath);
 
         ok(info.isFile);
@@ -26,12 +28,12 @@ test("fs::stat gets file information for a file", async () => {
         ok(!info.isDirectory);
         ok(!info.isSymlink);
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 
 test("fs::stat gets file information for a directory", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir   (testData, { recursive: true });
 
     try {
         const info = await stat(testData);
@@ -41,24 +43,24 @@ test("fs::stat gets file information for a directory", async () => {
         ok(!info.isSymlink);
         equal(info.name, "stat");
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 
 test("fs::stat works with URL paths", async () => {
-    await exec("mkdir", ["-p", testData]);
+    await makeDir(testData, { recursive: true });
     const filePath = join(testData, "url-test.txt");
     const fileUrl = new URL(`file://${filePath}`);
 
     try {
-        await exec("bash", ["-c", `echo "url test" > ${filePath}`]);
+        await writeTextFile(filePath, "url test content");
         const info = await stat(fileUrl);
 
         ok(info.isFile);
         equal(info.name, "url-test.txt");
         equal(info.path, fileUrl.toString());
     } finally {
-        await exec("rm", ["-rf", testData]);
+        await remove(testData, { recursive: true });
     }
 });
 
