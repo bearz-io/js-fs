@@ -43,7 +43,7 @@ const deps: Record<string, string> = {
     "@bearz/path": "^0.0.0",
 };
 const devDeps: Record<string, string> = {
-    "@types/node": "^22.13.4",
+    "@types/node": "^22.13.10",
     "@bearz/testing": "^0.0.0",
     "@bearz/assert": "^0.1.0",
 };

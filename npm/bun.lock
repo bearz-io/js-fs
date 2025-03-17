@@ -9,7 +9,7 @@
       "devDependencies": {
         "@bearz/assert": "^0.1.0",
         "@bearz/testing": "^0.0.0",
-        "@types/node": "^22.13.4",
+        "@types/node": "^22.13.10",
         "picocolors": "^1.0.0",
       },
     },

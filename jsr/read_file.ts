@@ -35,10 +35,10 @@ export function readFile(path: string | URL, options?: ReadOptions): Promise<Uin
             return Promise.reject(e);
         }
 
-        return fnAsync(path, { signal: options.signal });
+        return fnAsync(path, { signal: options.signal }) as Promise<Uint8Array>;
     }
 
-    return fnAsync(path);
+    return fnAsync(path) as Promise<Uint8Array>;
 }
 
 /**
@@ -58,5 +58,5 @@ export function readFileSync(path: string | URL): Uint8Array {
         }
     }
 
-    return fn(path);
+    return fn(path) as Uint8Array;
 }
