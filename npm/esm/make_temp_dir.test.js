@@ -2,7 +2,7 @@ import "./_dnt.test_polyfills.js";
 import { test } from "@bearz/testing";
 import { equal, ok } from "@bearz/assert";
 import { makeTempDir, makeTempDirSync } from "./make_temp_dir.js";
-import { globals } from "./globals.js";
+import { globals, WIN } from "./globals.js";
 import { makeDir } from "./make_dir.js";
 import { remove } from "./remove.js";
 import { exists, existsSync } from "./exists.js";
@@ -26,7 +26,7 @@ test("fs::makeTempDir creates directory with suffix", async () => {
     await remove(tempDir, { recursive: true });
 });
 test("fs::makeTempDir creates directory in specified dir", async () => {
-    const baseDir = "/tmp/test-base";
+    const baseDir = !WIN ? "/tmp/test-base" : (globals.process.env.TEMP + "\\test-base");
     await makeDir(baseDir, { recursive: true });
     const tempDir = await makeTempDir({ dir: baseDir });
     ok(tempDir.startsWith(baseDir));
@@ -64,7 +64,7 @@ test("fs::makeTempDirSync creates directory with suffix", async () => {
     await remove(tempDir, { recursive: true });
 });
 test("fs::makeTempDirSync creates directory in specified dir", async () => {
-    const baseDir = "/tmp/test-base";
+    const baseDir = !WIN ? "/tmp/test-base" : (globals.process.env.TEMP + "\\test-base");
     await makeDir(baseDir, { recursive: true });
     const tempDir = makeTempDirSync({ dir: baseDir });
     ok(tempDir.startsWith(baseDir));

@@ -1,7 +1,7 @@
 import { test } from "@bearz/testing";
 import { equal, ok } from "@bearz/assert";
 import { makeTempDir, makeTempDirSync } from "./make_temp_dir.ts";
-import { globals } from "./globals.ts";
+import { globals, WIN } from "./globals.ts";
 import { makeDir } from "./make_dir.ts";
 import { remove } from "./remove.ts";
 import { exists, existsSync } from "./exists.ts";
@@ -30,7 +30,7 @@ test("fs::makeTempDir creates directory with suffix", async () => {
 });
 
 test("fs::makeTempDir creates directory in specified dir", async () => {
-    const baseDir = "/tmp/test-base";
+    const baseDir = !WIN ? "/tmp/test-base" : (globals.process.env.TEMP + "\\test-base");
     await makeDir(baseDir, { recursive: true });
     const tempDir = await makeTempDir({ dir: baseDir });
     ok(tempDir.startsWith(baseDir));
@@ -73,7 +73,7 @@ test("fs::makeTempDirSync creates directory with suffix", async () => {
 });
 
 test("fs::makeTempDirSync creates directory in specified dir", async () => {
-    const baseDir = "/tmp/test-base";
+    const baseDir = !WIN ? "/tmp/test-base" : (globals.process.env.TEMP + "\\test-base");
     await makeDir(baseDir, { recursive: true });
     const tempDir = makeTempDirSync({ dir: baseDir });
     ok(tempDir.startsWith(baseDir));
